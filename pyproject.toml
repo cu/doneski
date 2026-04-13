@@ -1,0 +1,21 @@
+[project]
+name = "doneski"
+version = "0.1.0"
+description = "Personal daily task and notes management"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[project.scripts]
+doneski = "doneski.app:main"
