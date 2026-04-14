@@ -2,6 +2,8 @@
  * Date formatting and helper utilities.
  */
 
+export const SPECIAL_TITLES = new Set(["todo", "done"]);
+
 const DAY_NAMES = [
   "Sunday", "Monday", "Tuesday", "Wednesday",
   "Thursday", "Friday", "Saturday"

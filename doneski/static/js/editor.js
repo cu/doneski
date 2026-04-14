@@ -12,10 +12,9 @@ import {
   isNoteDirty,
   updateNoteInState,
 } from "./state.js";
-import { isToday } from "./utils.js";
+import { isToday, SPECIAL_TITLES } from "./utils.js";
 
 const AUTOSAVE_DELAY = 10000; // 10 seconds
-const SPECIAL_TITLES = new Set(["todo", "done"]);
 
 let editorBody;
 let noteHeader;

@@ -2,7 +2,7 @@
  * Sidebar: note list, buttons, day metadata.
  */
 
-import { formatDate, relativeLabel, isToday as isTodayUtil } from "./utils.js";
+import { formatDate, relativeLabel, isToday as isTodayUtil, SPECIAL_TITLES } from "./utils.js";
 import { getState } from "./state.js";
 
 let onNoteSelect;
@@ -94,6 +94,9 @@ export function render() {
       li.className = "note-item";
       if (note.title === selectedNote) {
         li.classList.add("active");
+      }
+      if (SPECIAL_TITLES.has(note.title.toLowerCase())) {
+        li.classList.add("special-note")
       }
       li.addEventListener("click", () => onNoteSelect(note.title));
       notesList.appendChild(li);

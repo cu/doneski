@@ -190,6 +190,10 @@ html, body {
   font-weight: 600;
 }
 
+.special-note {
+  font-weight: bold;
+}
+
 /* === Sidebar buttons === */
 
 #sidebar-buttons {
