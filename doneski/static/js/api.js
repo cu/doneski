@@ -12,10 +12,10 @@ async function request(method, path, body = null) {
     opts.body = JSON.stringify(body);
   }
   const resp = await fetch(path, opts);
-  const data = await resp.json();
   if (!resp.ok) {
-    throw new Error(data.error || `Request failed: ${resp.status}`);
+    throw new Error(`Request failed: ${resp.status}`);
   }
+  const data = await resp.json();
   return data;
 }
 

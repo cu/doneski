@@ -147,6 +147,7 @@ async function handleDelete(title) {
     sidebar.render();
     editor.render();
   } catch (err) {
+    console.error(err.stack);
     alert(err.message);
   }
 }
