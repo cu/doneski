@@ -1,5 +1,6 @@
 """Flask application factory and entry point."""
 
+from dotenv import load_dotenv
 from flask import Flask
 
 from doneski.config import Config
@@ -27,6 +28,7 @@ def create_app(config: Config | None = None) -> Flask:
 
 
 def main():
+    load_dotenv()
     config = Config()
     app = create_app(config)
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)

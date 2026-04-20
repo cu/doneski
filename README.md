@@ -22,6 +22,27 @@ The app will be available at `http://127.0.0.1:5000`. The `DONESKI_DATA_DIR` env
 
 # Development
 
+Run:
+
+```bash
+uv sync --group dev
+```
+
+Create a `.env` file containing the following:
+
+```bash
+DONESKI_DEBUG=true
+WERKZEUG_DEBUG_PIN=off
+DONESKI_DATA_DIR=/path/to/data
+```
+
+Then run the development server:
+
+```bash
+DONESKI_DATA_DIR=~/.doneski/data uv run doneski
+```
+
+
 Run tests with:
 
 ```bash
