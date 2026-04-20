@@ -109,7 +109,7 @@ async function handleAddNote(title) {
   }
 }
 
-async function handleSave(title, body) {
+async function handleSaveNote(title, body) {
   const state = getState();
   await api.updateNote(
     state.selectedYear,
@@ -133,7 +133,7 @@ async function handleTitleChange(oldTitle, newTitle) {
   sidebar.render();
 }
 
-async function handleDelete(title) {
+async function handleDeleteNote(title) {
   const state = getState();
   try {
     await api.deleteNote(
@@ -204,9 +204,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     onWeeklyReport: handleWeeklyReport,
   });
   editor.init({
-    onSave: handleSave,
+    onSave: handleSaveNote,
     onTitleChange: handleTitleChange,
-    onDelete: handleDelete,
+    onDelete: handleDeleteNote,
   });
   initModal();
 
