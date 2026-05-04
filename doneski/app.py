@@ -1,6 +1,7 @@
 """Flask application factory and entry point."""
 
 import os
+import sys
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -26,6 +27,11 @@ def create_app(config: Config | None = None, instance_path: str | None = None) -
         instance_path = os.environ.get("DONESKI_DATA")
 
     app = Flask(__name__, instance_path=instance_path)
+
+    if config.DEBUG:
+        print(sys.version)
+        print(f"Instance path: {app.instance_path}")
+
     os.makedirs(app.instance_path, exist_ok=True)
 
     store = FileStore(app.instance_path)
