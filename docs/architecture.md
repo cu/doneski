@@ -311,7 +311,7 @@ Contents of Tuesday's Done note...
 
 App configuration is handled in `doneski/config.py` and is controlled by environment variables. These can be set on the command line or specified in the `.env` file (not included in the git repo). Some of the more important vars are:
 
-- `DONESKI_DATA_DIR`: Sets the data store directory. Currently required.
+- `DONESKI_DATA`: Overrides Flask's instance folder, which is where note files are stored. Defaults to `instance/` relative to the project root.
 - `DONESKI_DEBUG`: Enables Werkzeug's debug mode.
 - `DONESKI_HOST`: IP for development server to listen on.
 - `DONESKI_PORT`: Port for development server to listen on.

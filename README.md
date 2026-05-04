@@ -10,10 +10,10 @@ Requires [uv](https://github.com/astral-sh/uv) and Python 3.13+.
 
 ```bash
 uv sync
-DONESKI_DATA_DIR=~/.doneski/data uv run doneski
+uv run doneski
 ```
 
-The app will be available at `http://127.0.0.1:5000`. The `DONESKI_DATA_DIR` environment variable is required and specifies where note files are stored. Optionally set `DONESKI_HOST`, `DONESKI_PORT`, or `DONESKI_DEBUG`.
+The app will be available at `http://127.0.0.1:5000`. Note files are stored in Flask's instance folder (`instance/` relative to the project root by default). Override the location by setting `DONESKI_DATA`. Optionally set `DONESKI_HOST`, `DONESKI_PORT`, or `DONESKI_DEBUG`.
 
 # Development
 
@@ -28,13 +28,13 @@ Create a `.env` file containing the following:
 ```bash
 DONESKI_DEBUG=true
 WERKZEUG_DEBUG_PIN=off
-DONESKI_DATA_DIR=/path/to/data
+DONESKI_DATA=/path/to/data
 ```
 
 Then run the development server:
 
 ```bash
-DONESKI_DATA_DIR=~/.doneski/data uv run doneski
+uv run doneski
 ```
 
 

@@ -1,5 +1,6 @@
 # Local config
 .env
+instance
 
 # Python-generated files
 __pycache__/

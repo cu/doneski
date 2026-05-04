@@ -1,10 +1,6 @@
-import os
-import tempfile
-
 import pytest
 
 from doneski.app import create_app
-from doneski.config import Config
 from doneski.services.notes import NotesService
 from doneski.storage.file_store import FileStore
 
@@ -25,13 +21,8 @@ def service(store):
 
 
 @pytest.fixture
-def app(data_dir):
-    config = Config.__new__(Config)
-    config.DATA_DIR = data_dir
-    config.HOST = "127.0.0.1"
-    config.PORT = 5000
-    config.DEBUG = False
-    return create_app(config)
+def app(tmp_path):
+    return create_app(instance_path=str(tmp_path))
 
 
 @pytest.fixture
