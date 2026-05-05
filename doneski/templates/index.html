@@ -10,6 +10,17 @@
 <body>
   <div id="app">
     <aside id="sidebar">
+      <div id="sidebar-header">
+        <div id="sidebar-menu-container">
+          <button id="btn-sidebar-menu" class="sidebar-menu-toggle" title="More options">☰</button>
+          <div id="sidebar-menu" class="sidebar-menu-dropdown" style="display: none;">
+            <button id="btn-weekly-report" class="sidebar-menu-item">Weekly Report</button>
+            <button id="btn-delete-day" class="sidebar-menu-item danger">Delete Day</button>
+          </div>
+        </div>
+        <span id="app-name">Doneski</span>
+      </div>
+
       <div id="calendar-container"></div>
 
       <div id="day-info">
@@ -18,14 +29,11 @@
       </div>
 
       <div id="notes-list-container">
+        <button id="btn-new-day" class="sidebar-btn" style="display: none;">New Day</button>
         <ul id="notes-list"></ul>
+        <button id="btn-add-note" class="add-note-btn" style="display: none;">+ Add Note</button>
       </div>
 
-      <div id="sidebar-buttons">
-        <button id="btn-new-day" class="sidebar-btn">New Day</button>
-        <button id="btn-add-note" class="sidebar-btn" style="display: none;">+ Add Note</button>
-        <button id="btn-weekly-report" class="sidebar-btn">Weekly Report</button>
-      </div>
     </aside>
 
     <main id="editor-pane">

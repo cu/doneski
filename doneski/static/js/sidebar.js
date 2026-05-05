@@ -18,33 +18,52 @@ export function init(callbacks) {
   onAddNote = callbacks.onAddNote;
   onWeeklyReport = callbacks.onWeeklyReport;
 
-  document.getElementById("btn-new-day").addEventListener("click", handleNewDayOrDelete);
+  document.getElementById("btn-new-day").addEventListener("click", () => onNewDay());
   document.getElementById("btn-add-note").addEventListener("click", handleAddNote);
-  document.getElementById("btn-weekly-report").addEventListener("click", onWeeklyReport);
+  document.getElementById("btn-sidebar-menu").addEventListener("click", toggleMenu);
+  document.getElementById("btn-weekly-report").addEventListener("click", () => {
+    closeMenu();
+    onWeeklyReport();
+  });
+  document.getElementById("btn-delete-day").addEventListener("click", () => {
+    closeMenu();
+    handleDeleteDay();
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    const container = document.getElementById("sidebar-menu-container");
+    if (!container.contains(e.target)) {
+      closeMenu();
+    }
+  });
 }
 
-function handleNewDayOrDelete() {
-  const state = getState();
-  if (state.notes && state.notes.length > 0) {
-    // Day has notes -> this is the "Delete Day" button
-    const dateStr = formatDate(state.selectedYear, state.selectedMonth, state.selectedDay);
-    if (
-      confirm(
-        `This will permanently delete all notes for ${dateStr}. This cannot be undone. Are you sure?`
-      )
-    ) {
-      onDeleteDay();
-    }
-  } else {
-    // No notes -> this is the "New Day" button
-    onNewDay();
-  }
+function toggleMenu() {
+  const menu = document.getElementById("sidebar-menu");
+  menu.style.display = menu.style.display === "none" ? "" : "none";
+}
+
+function closeMenu() {
+  document.getElementById("sidebar-menu").style.display = "none";
 }
 
 function handleAddNote() {
   const title = prompt("Enter a title for the new note:");
   if (title !== null && title.trim() !== "") {
     onAddNote(title.trim());
+  }
+}
+
+function handleDeleteDay() {
+  const state = getState();
+  const dateStr = formatDate(state.selectedYear, state.selectedMonth, state.selectedDay);
+  if (
+    confirm(
+      `This will permanently delete all notes for ${dateStr}. This cannot be undone. Are you sure?`
+    )
+  ) {
+    onDeleteDay();
   }
 }
 
@@ -57,6 +76,7 @@ export function render() {
   const dayRelativeEl = document.getElementById("day-relative");
   const btnNewDay = document.getElementById("btn-new-day");
   const btnAddNote = document.getElementById("btn-add-note");
+  const btnDeleteDay = document.getElementById("btn-delete-day");
 
   if (selectedYear && selectedMonth && selectedDay) {
     dayDateEl.textContent = formatDate(selectedYear, selectedMonth, selectedDay);
@@ -69,20 +89,16 @@ export function render() {
     dayRelativeEl.className = "";
   }
 
-  // New Day / Delete Day button
   const hasNotes = notes && notes.length > 0;
-  if (hasNotes) {
-    btnNewDay.textContent = "Delete Day";
-    btnNewDay.classList.add("danger");
-  } else {
-    btnNewDay.textContent = "New Day";
-    btnNewDay.classList.remove("danger");
-  }
-  // Only show the button if a day is selected
-  btnNewDay.style.display = selectedDay ? "" : "none";
+
+  // New Day button: shown in place of notes list when a day is selected but has no notes
+  btnNewDay.style.display = (selectedDay && !hasNotes) ? "" : "none";
 
   // Add Note button: only visible when day has notes
   btnAddNote.style.display = hasNotes ? "" : "none";
+
+  // Delete Day menu item: only relevant when day has notes
+  btnDeleteDay.style.display = hasNotes ? "" : "none";
 
   // Notes list
   const notesList = document.getElementById("notes-list");
@@ -96,7 +112,7 @@ export function render() {
         li.classList.add("active");
       }
       if (SPECIAL_TITLES.has(note.title.toLowerCase())) {
-        li.classList.add("special-note")
+        li.classList.add("special-note");
       }
       li.addEventListener("click", () => onNoteSelect(note.title));
       notesList.appendChild(li);

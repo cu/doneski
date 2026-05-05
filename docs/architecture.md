@@ -158,12 +158,12 @@ All endpoints are prefixed with `/api/`.
 - Visually distinguishes: today, selected day, days with notes, days without notes, future days
 
 **`sidebar.js`** - Left pane below calendar
+- Hamburer menu containing "Weekly Report" and "Delete Day" (the latter only shown if there are notes for that day).
 - Displays selected day's date in format: `<DayOfWeek>, <Month> <Day> <Year>`
 - Displays relative label: "Today" (normal), "Yesterday" (red), "X Days Ago" (red)
 - Renders note list (note titles, clickable)
-- **"New Day" / "Delete Day" button**: When the selected day has no notes, this button shows "New Day" and calls the init endpoint. When the selected day already has notes, this button becomes "Delete Day" (with a serious confirmation dialog). This repurposes the same button slot since "New Day" is irrelevant once a day is populated.
 - "Add Note" button: calls create endpoint, refreshes sidebar, selects new note. Only visible/enabled when the selected day has notes.
-- "Weekly Report" button: fetches report, shows in modal dialog
+- "New Day" button: When the selected day has no notes, this button shows "New Day" and calls the init endpoint. When the selected day already has notes, this button becomes "Delete Day" (with a serious confirmation dialog). This repurposes the same button slot since "New Day" is irrelevant once a day is populated.
 
 **`editor.js`** - Right pane
 - Note header: editable title (click-to-edit), truncated with ellipsis and hover tooltip

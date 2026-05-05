@@ -189,12 +189,6 @@ html, body {
 
 /* === Sidebar buttons === */
 
-#sidebar-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .sidebar-btn {
   width: 100%;
   padding: 8px 12px;
@@ -210,12 +204,95 @@ html, body {
   background: #f0f0f0;
 }
 
-.sidebar-btn.danger {
-  color: #d32f2f;
-  border-color: #d32f2f;
+/* Add Note button: sits at bottom of notes list, styled like a list item but as a button */
+.add-note-btn {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  color: #888;
+  margin-top: 4px;
 }
 
-.sidebar-btn.danger:hover {
+.add-note-btn:hover {
+  background: #f0f0f0;
+  border-color: #aaa;
+  color: #333;
+}
+
+/* === Sidebar header === */
+
+#sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#app-name {
+  font-weight: 700;
+  font-size: 18px;
+  color: #333;
+}
+
+#sidebar-menu-container {
+  position: relative;
+}
+
+.sidebar-menu-toggle {
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 26px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.sidebar-menu-toggle:hover {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.sidebar-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 4px;
+  min-width: 160px;
+  z-index: 100;
+}
+
+.sidebar-menu-item {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  display: block;
+}
+
+.sidebar-menu-item:hover {
+  background: #f0f0f0;
+}
+
+.sidebar-menu-item.danger {
+  color: #d32f2f;
+}
+
+.sidebar-menu-item.danger:hover {
   background: #ffebee;
 }
 
