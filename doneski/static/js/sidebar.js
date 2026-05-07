@@ -4,6 +4,7 @@
 
 import { formatDate, relativeLabel, isToday as isTodayUtil, SPECIAL_TITLES } from "./utils.js";
 import { getState } from "./state.js";
+import { showDialog } from "./modal.js";
 
 let onNoteSelect;
 let onNewDay;
@@ -49,10 +50,48 @@ function closeMenu() {
 }
 
 function handleAddNote() {
-  const title = prompt("Enter a title for the new note:");
-  if (title !== null && title.trim() !== "") {
-    onAddNote(title.trim());
-  }
+  const field = document.createElement("div");
+  field.className = "dlg-field";
+
+  const label = document.createElement("label");
+  label.className = "dlg-label";
+  label.setAttribute("for", "new-note-title-input");
+  label.textContent = "Title";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = "new-note-title-input";
+  input.className = "dlg-input";
+  input.maxLength = 80;
+  input.placeholder = "Enter a title for the new note";
+  input.autocomplete = "off";
+
+  const charCount = document.createElement("div");
+  charCount.className = "dlg-char-count";
+  charCount.textContent = "0 / 80";
+
+  input.addEventListener("input", () => {
+    const len = input.value.length;
+    charCount.textContent = `${len} / 80`;
+    charCount.classList.toggle("near-limit", len >= 70);
+  });
+
+  field.appendChild(label);
+  field.appendChild(input);
+  field.appendChild(charCount);
+
+  showDialog({
+    title: "New Note",
+    content: field,
+    actionLabel: "Add",
+    onAction: async () => {
+      const title = input.value.trim();
+      if (!title) {
+        throw new Error("Please enter a title.");
+      }
+      await onAddNote(title);
+    },
+  });
 }
 
 function handleDeleteDay() {

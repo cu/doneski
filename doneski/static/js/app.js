@@ -6,6 +6,7 @@ import * as api from "./api.js";
 import * as calendar from "./calendar.js";
 import * as sidebar from "./sidebar.js";
 import * as editor from "./editor.js";
+import { initDialog } from "./modal.js";
 import {
   setSelectedDate,
   setNotes,
@@ -97,16 +98,13 @@ async function handleDeleteDay() {
 async function handleAddNote(title) {
   const state = getState();
   const { selectedYear, selectedMonth, selectedDay } = state;
-  try {
-    const note = await api.createNote(selectedYear, selectedMonth, selectedDay, title);
-    state.notes.push(note);
-    editor.addTextarea(note);
-    setSelectedNote(note.title);
-    sidebar.render();
-    editor.render();
-  } catch (err) {
-    alert(err.message);
-  }
+  // Errors are intentionally not caught here; the caller (modal) handles them.
+  const note = await api.createNote(selectedYear, selectedMonth, selectedDay, title);
+  state.notes.push(note);
+  editor.addTextarea(note);
+  setSelectedNote(note.title);
+  sidebar.render();
+  editor.render();
 }
 
 async function handleSaveNote(title, body) {
@@ -209,6 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     onDelete: handleDeleteNote,
   });
   initModal();
+  initDialog();
 
   // Listen for month navigation
   document.getElementById("calendar-container").addEventListener("monthchange", async (e) => {

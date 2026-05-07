@@ -436,6 +436,139 @@ html, body {
   color: #666;
 }
 
+/* === Generic Dialog === */
+
+#generic-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#generic-dialog {
+  background: #fff;
+  border-radius: 8px;
+  width: 480px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.dlg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dlg-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dlg-close-btn {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.dlg-body {
+  padding: 16px;
+}
+
+.dlg-error {
+  margin: 0 16px 12px;
+  padding: 8px 12px;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 4px;
+  color: #c62828;
+  font-size: 13px;
+}
+
+.dlg-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dlg-btn {
+  padding: 7px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.dlg-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.dlg-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.dlg-btn-primary {
+  background: #4a90d9;
+  color: #fff;
+  border-color: #4a90d9;
+}
+
+.dlg-btn-primary:hover:not(:disabled) {
+  background: #3a80c9;
+  border-color: #3a80c9;
+}
+
+/* Input fields inside dialog body */
+
+.dlg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dlg-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.dlg-input {
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+}
+
+.dlg-input:focus {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
+.dlg-char-count {
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+}
+
+.dlg-char-count.near-limit {
+  color: #e65100;
+  font-weight: 600;
+}
+
 /* === Modal === */
 
 #modal-overlay {
