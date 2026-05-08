@@ -131,21 +131,15 @@ All endpoints are prefixed with `/api/`.
 
 ## Module Responsibilities
 
-**`app.js`** - Application entry point and orchestrator
-- Initializes all modules on DOMContentLoaded
-- Coordinates inter-module communication via a simple event/callback pattern
-- Manages the overall app state transitions (selected day, selected note)
-
-**`state.js`** - Client-side state management
-- Holds current application state: selected date, selected note title, notes list, dirty flags, lock states
-- Provides getter/setter methods that trigger UI updates via callbacks
-- Tracks which notes have unsaved changes (dirty map)
-- Tracks lock state per note (UI-only, not persisted)
-
 **`api.js`** - Backend communication
 - Thin async fetch wrapper for each API endpoint
 - Handles HTTP errors, returns parsed JSON
 - Single point of change if API paths change
+
+**`app.js`** - Application entry point and orchestrator
+- Initializes all modules on DOMContentLoaded
+- Coordinates inter-module communication via a simple event/callback pattern
+- Manages the overall app state transitions (selected day, selected note)
 
 **`calendar.js`** - Calendar widget
 - Renders a month grid (Sun-Sat columns)
@@ -154,16 +148,8 @@ All endpoints are prefixed with `/api/`.
 - Grays out / disables future days
 - Supports navigating to previous/next months via arrows
 - Click handler: selects a day, triggers sidebar update
-- No right-click override; day deletion is handled via a sidebar button (see sidebar.js)
+- No right-click override; day deletion is handled via a sidebar menu (see sidebar.js)
 - Visually distinguishes: today, selected day, days with notes, days without notes, future days
-
-**`sidebar.js`** - Left pane below calendar
-- Hamburer menu containing "Weekly Report" and "Delete Day" (the latter only shown if there are notes for that day).
-- Displays selected day's date in format: `<DayOfWeek>, <Month> <Day> <Year>`
-- Displays relative label: "Today" (normal), "Yesterday" (red), "X Days Ago" (red)
-- Renders note list (note titles, clickable)
-- "Add Note" button: calls create endpoint, refreshes sidebar, selects new note. Only visible/enabled when the selected day has notes.
-- "New Day" button: When the selected day has no notes, this button shows "New Day" and calls the init endpoint. When the selected day already has notes, this button becomes "Delete Day" (with a serious confirmation dialog). This repurposes the same button slot since "New Day" is irrelevant once a day is populated.
 
 **`editor.js`** - Right pane
 - Note header: editable title (click-to-edit), truncated with ellipsis and hover tooltip
@@ -176,6 +162,24 @@ All endpoints are prefixed with `/api/`.
   - Current day: always unlocked, padlock icon grayed out / non-interactive
   - Previous days: locked by default, click padlock to unlock, auto-locks on note switch
 - Warning banner for editing previous days' notes (visible when note is unlocked on a past day)
+
+**`modal.js`** - Implements a generic modal for user input, warnings, and confirmation.
+
+**`sidebar.js`** - Left pane below calendar
+- Hamburer menu containing "Weekly Report" and "Delete Day" (the latter only shown if there are notes for that day).
+- Displays selected day's date in format: `<DayOfWeek>, <Month> <Day> <Year>`
+- Displays relative label: "Today" (normal), "Yesterday" (red), "X Days Ago" (red)
+- Renders note list (note titles, clickable)
+- "Add Note" button: calls create endpoint, refreshes sidebar, selects new note. Only visible/enabled when the selected day has notes.
+- "New Day" button: When the selected day has no notes, this button shows "New Day" and calls the init endpoint. When the selected day already has notes, this button becomes "Delete Day" (with a serious confirmation dialog). This repurposes the same button slot since "New Day" is irrelevant once a day is populated.
+
+**`state.js`** - Client-side state management
+- Holds current application state: selected date, selected note title, notes list, dirty flags, lock states
+- Provides getter/setter methods that trigger UI updates via callbacks
+- Tracks which notes have unsaved changes (dirty map)
+- Tracks lock state per note (UI-only, not persisted)
+
+**`utils.js`** - Contains date formatting functions and other helper utilities.
 
 ## Undo/Redo Strategy
 
@@ -300,11 +304,10 @@ Contents of Tuesday's Done note...
 - On confirm: DELETE API call, remove note from sidebar, select the next note in the list (or Todo if no other notes remain).
 - Trash icon is hidden or disabled for Todo and Done notes.
 
-## Day Deletion (Sidebar Button)
+## Day Deletion (Sidebar Menu)
 
-- When the selected day already has notes, the "New Day" button becomes a "Delete Day" button.
 - On click: serious confirmation dialog ("This will permanently delete all notes for Friday, April 10, 2026. This cannot be undone. Are you sure?")
-- On confirm: DELETE API call, refresh calendar and sidebar. The button reverts to "New Day" since the day now has no notes.
+- On confirm: DELETE API call, refresh calendar and sidebar.
 - Available for any day including today.
 
 # Configuration
@@ -340,7 +343,3 @@ To avoid scanning day-by-day across potentially large gaps:
 1. List day files in the target month, find the latest day before the target date.
 2. If not found, scan month directories backwards (year/month), find the latest day file in the first non-empty month found.
 3. Hard limit of ~2 years back to avoid pathological edge cases.
-
-### "New Day" / "Delete Day" button dual purpose
-
-The sidebar button slot serves double duty: "New Day" when the selected day has no notes, "Delete Day" when it does. This avoids the complexity of a custom right-click context menu and keeps the interaction discoverable. The button's label, style, and click handler swap based on whether notes exist for the selected day.
