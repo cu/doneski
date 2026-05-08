@@ -292,7 +292,12 @@ async function commitTitleEdit() {
     noteTitle.textContent = newTitle;
     noteTitle.title = newTitle;
   } catch (err) {
-    alert(err.message);
+    const p = document.createElement("p");
+    p.textContent = err.message;
+    showDialog({
+      title: "Error renaming note",
+      content: p,
+    });
   }
 }
 

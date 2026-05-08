@@ -13,6 +13,7 @@ function close() {
   errorEl.style.display = "none";
   errorEl.textContent = "";
   actionBtn.onclick = null;
+  actionBtn.style.display = "";
 }
 
 /**
@@ -21,18 +22,25 @@ function close() {
  * @param {Object} options
  * @param {string} options.title - Dialog title text.
  * @param {HTMLElement} options.content - Element to insert into the dialog body.
- * @param {string} options.actionLabel - Label for the primary action button.
- * @param {Function} options.onAction - Async function called on action button click.
+ * @param {string} [options.actionLabel] - Label for the primary action button. If omitted,
+ *   the action button is hidden and only the "Close" button is shown.
+ * @param {Function} [options.onAction] - Async function called on action button click.
  *   Should resolve on success (dialog closes) or throw an Error on failure
  *   (error message is shown and dialog stays open).
  * @param {"primary"|"danger"} [options.actionVariant="primary"] - Visual style for the action button.
  */
 export function showDialog({ title, content, actionLabel, onAction, actionVariant = "primary" }) {
   titleEl.textContent = title;
-  actionBtn.textContent = actionLabel;
-  actionBtn.className = `dlg-btn dlg-btn-${actionVariant}`;
   actionBtn.disabled = false;
   cancelBtn.disabled = false;
+
+  if (actionLabel) {
+    actionBtn.textContent = actionLabel;
+    actionBtn.className = `dlg-btn dlg-btn-${actionVariant}`;
+    actionBtn.style.display = "";
+  } else {
+    actionBtn.style.display = "none";
+  }
   errorEl.style.display = "none";
   errorEl.textContent = "";
 
