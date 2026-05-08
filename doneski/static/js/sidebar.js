@@ -97,13 +97,19 @@ function handleAddNote() {
 function handleDeleteDay() {
   const state = getState();
   const dateStr = formatDate(state.selectedYear, state.selectedMonth, state.selectedDay);
-  if (
-    confirm(
-      `This will permanently delete all notes for ${dateStr}. This cannot be undone. Are you sure?`
-    )
-  ) {
-    onDeleteDay();
-  }
+
+  const msg = document.createElement("p");
+  msg.textContent = `This will permanently delete all notes for ${dateStr}. This cannot be undone.`;
+
+  showDialog({
+    title: "Delete Day",
+    content: msg,
+    actionLabel: "Delete",
+    actionVariant: "danger",
+    onAction: async () => {
+      await onDeleteDay();
+    },
+  });
 }
 
 export function render() {

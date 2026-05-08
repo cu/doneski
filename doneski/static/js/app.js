@@ -83,16 +83,13 @@ async function handleNewDay() {
 async function handleDeleteDay() {
   const state = getState();
   const { selectedYear, selectedMonth, selectedDay } = state;
-  try {
-    await api.deleteDay(selectedYear, selectedMonth, selectedDay);
-    setNotes(null);
-    editor.buildTextareas(null);
-    sidebar.render();
-    editor.render();
-    await loadMonth(calendar.getViewYear(), calendar.getViewMonth());
-  } catch (err) {
-    alert(err.message);
-  }
+  // Errors intentionally not caught here; the modal displays them.
+  await api.deleteDay(selectedYear, selectedMonth, selectedDay);
+  setNotes(null);
+  editor.buildTextareas(null);
+  sidebar.render();
+  editor.render();
+  await loadMonth(calendar.getViewYear(), calendar.getViewMonth());
 }
 
 async function handleAddNote(title) {
