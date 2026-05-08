@@ -6,7 +6,7 @@ import * as api from "./api.js";
 import * as calendar from "./calendar.js";
 import * as sidebar from "./sidebar.js";
 import * as editor from "./editor.js";
-import { initDialog } from "./modal.js";
+import { initDialog, showDialog } from "./modal.js";
 import {
   setSelectedDate,
   setNotes,
@@ -76,7 +76,9 @@ async function handleNewDay() {
     // Refresh calendar to show the new day as highlighted
     await loadMonth(calendar.getViewYear(), calendar.getViewMonth());
   } catch (err) {
-    alert(err.message);
+    const p = document.createElement("p");
+    p.textContent = err.message;
+    showDialog({ title: "Error", content: p });
   }
 }
 
@@ -150,7 +152,9 @@ async function handleWeeklyReport() {
     modalBody.textContent = report || "(No completed items for last week.)";
     modalOverlay.style.display = "";
   } catch (err) {
-    alert(err.message);
+    const p = document.createElement("p");
+    p.textContent = err.message;
+    showDialog({ title: "Error", content: p });
   }
 }
 
@@ -178,7 +182,11 @@ function initModal() {
           btnCopy.textContent = "Copy to Clipboard";
         }, 2000);
       },
-      () => alert("Failed to copy to clipboard.")
+      () => {
+        const p = document.createElement("p");
+        p.textContent = "Failed to copy to clipboard.";
+        showDialog({ title: "Error", content: p });
+      }
     );
   });
 }
