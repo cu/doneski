@@ -530,6 +530,17 @@ html, body {
   border-color: #3a80c9;
 }
 
+.dlg-btn-danger {
+  background: #d9534f;
+  color: #fff;
+  border-color: #d9534f;
+}
+
+.dlg-btn-danger:hover:not(:disabled) {
+  background: #c9302c;
+  border-color: #c9302c;
+}
+
 /* Input fields inside dialog body */
 
 .dlg-field {

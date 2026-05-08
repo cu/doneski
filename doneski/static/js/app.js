@@ -133,21 +133,16 @@ async function handleTitleChange(oldTitle, newTitle) {
 
 async function handleDeleteNote(title) {
   const state = getState();
-  try {
-    await api.deleteNote(
-      state.selectedYear,
-      state.selectedMonth,
-      state.selectedDay,
-      title
-    );
-    editor.removeTextarea(title);
-    removeNoteFromState(title);
-    sidebar.render();
-    editor.render();
-  } catch (err) {
-    console.error(err.stack);
-    alert(err.message);
-  }
+  await api.deleteNote(
+    state.selectedYear,
+    state.selectedMonth,
+    state.selectedDay,
+    title
+  );
+  editor.removeTextarea(title);
+  removeNoteFromState(title);
+  sidebar.render();
+  editor.render();
 }
 
 async function handleWeeklyReport() {

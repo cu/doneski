@@ -13,6 +13,7 @@ import {
   updateNoteInState,
 } from "./state.js";
 import { isToday, SPECIAL_TITLES } from "./utils.js";
+import { showDialog } from "./modal.js";
 
 const AUTOSAVE_DELAY = 10000; // 10 seconds
 
@@ -225,9 +226,19 @@ function handleDeleteClick() {
   if (!state.selectedNote) return;
   if (SPECIAL_TITLES.has(state.selectedNote.toLowerCase())) return;
 
-  if (confirm(`Are you sure you want to delete "${state.selectedNote}"?`)) {
-    onDelete(state.selectedNote);
-  }
+  const title = state.selectedNote;
+  const content = document.createElement("p");
+  content.textContent = `Are you sure you want to delete "${title}"?`;
+
+  showDialog({
+    title: "Delete Note",
+    content,
+    actionLabel: "Delete",
+    actionVariant: "danger",
+    onAction: async () => {
+      await onDelete(title);
+    },
+  });
 }
 
 function handleTitleClick() {

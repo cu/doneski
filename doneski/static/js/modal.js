@@ -25,10 +25,12 @@ function close() {
  * @param {Function} options.onAction - Async function called on action button click.
  *   Should resolve on success (dialog closes) or throw an Error on failure
  *   (error message is shown and dialog stays open).
+ * @param {"primary"|"danger"} [options.actionVariant="primary"] - Visual style for the action button.
  */
-export function showDialog({ title, content, actionLabel, onAction }) {
+export function showDialog({ title, content, actionLabel, onAction, actionVariant = "primary" }) {
   titleEl.textContent = title;
   actionBtn.textContent = actionLabel;
+  actionBtn.className = `dlg-btn dlg-btn-${actionVariant}`;
   actionBtn.disabled = false;
   cancelBtn.disabled = false;
   errorEl.style.display = "none";
