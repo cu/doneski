@@ -3,7 +3,7 @@
 ## Documentation for coding agents
 
 * The `README.md` file contains important information for both humans and agents. It is required reading for both.
-* Application architecture, file structure, schemas, decisions, and technical information of all kinds is located in `docs/architecture.md`. It is required reading for agents before ANY changes are made.
+* Application architecture, file structure, schemas, decisions, and technical information of all kinds is located in `docs/architecture.md`. It is required reading for agents before ANY changes are made. Always update this file as needed for any changes in architecture, layout, or features. (But do not update the file for bug fixes.)
 
 ## General rules
 
