@@ -20,8 +20,19 @@ import {
 import { today } from "./utils.js";
 
 async function loadMonth(year, month) {
-  const days = await api.listDaysInMonth(year, month);
+  let prevYear = year, prevMonth = month - 1;
+  if (prevMonth < 1) { prevMonth = 12; prevYear--; }
+  let nextYear = year, nextMonth = month + 1;
+  if (nextMonth > 12) { nextMonth = 1; nextYear++; }
+
+  const [days, prevDays, nextDays] = await Promise.all([
+    api.listDaysInMonth(year, month),
+    api.listDaysInMonth(prevYear, prevMonth),
+    api.listDaysInMonth(nextYear, nextMonth),
+  ]);
+
   setCalendarMonth(year, month, days);
+  calendar.setAdjacentHighlightedDays(prevDays, nextDays);
   calendar.setHighlightedDays(days);
 }
 
@@ -212,6 +223,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Listen for month navigation
   document.getElementById("calendar-container").addEventListener("monthchange", async (e) => {
     await loadMonth(e.detail.year, e.detail.month);
+    if (e.detail.day != null) {
+      calendar.setSelected(e.detail.day);
+      await selectDay(e.detail.year, e.detail.month, e.detail.day);
+    }
   });
 
   // Load current month and select today

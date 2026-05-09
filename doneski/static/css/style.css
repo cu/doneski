@@ -101,6 +101,15 @@ html, body {
   cursor: default;
 }
 
+.cal-day.other-month.has-notes {
+  color: #888;
+  cursor: pointer;
+}
+
+.cal-day.other-month.has-notes:hover {
+  background: #e8e8e8;
+}
+
 .cal-day.future {
   color: #ccc;
   cursor: default;

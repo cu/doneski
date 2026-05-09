@@ -9,6 +9,8 @@ let onDayClick;
 let viewYear;
 let viewMonth;
 let highlightedDays = new Set();
+let prevMonthHighlightedDays = new Set();
+let nextMonthHighlightedDays = new Set();
 let selectedDay = null;
 
 export function init(containerEl, dayClickCallback) {
@@ -22,6 +24,12 @@ export function init(containerEl, dayClickCallback) {
 export function setHighlightedDays(days) {
   highlightedDays = new Set(days);
   render();
+}
+
+export function setAdjacentHighlightedDays(prevDays, nextDays) {
+  prevMonthHighlightedDays = new Set(prevDays);
+  nextMonthHighlightedDays = new Set(nextDays);
+  // No render here; caller triggers render via setHighlightedDays.
 }
 
 export function setSelected(day) {
@@ -47,10 +55,22 @@ function navigateMonth(delta) {
     viewYear--;
   }
   selectedDay = null;
-  // Notify app to load new month's data
   container.dispatchEvent(
     new CustomEvent("monthchange", {
-      detail: { year: viewYear, month: viewMonth },
+      detail: { year: viewYear, month: viewMonth, day: null },
+      bubbles: true,
+    })
+  );
+}
+
+// Navigate to a specific month and pre-select a day (used when clicking other-month days).
+function navigateToMonth(year, month, day) {
+  viewYear = year;
+  viewMonth = month;
+  selectedDay = null;
+  container.dispatchEvent(
+    new CustomEvent("monthchange", {
+      detail: { year, month, day },
       bubbles: true,
     })
   );
@@ -68,6 +88,14 @@ export function render() {
     prevYear--;
   }
   const prevMonthDays = daysInMonth(prevYear, prevMonth);
+
+  // Next month leading days
+  let nextYear = viewYear;
+  let nextMonth = viewMonth + 1;
+  if (nextMonth > 12) {
+    nextMonth = 1;
+    nextYear++;
+  }
 
   let html = `
     <div class="calendar-header">
@@ -95,10 +123,21 @@ export function render() {
       if (cellIndex < startDow) {
         // Previous month trailing days
         const pDay = prevMonthDays - startDow + cellIndex + 1;
-        html += `<td class="cal-day other-month">${pDay}</td>`;
+        const pHasNotes = prevMonthHighlightedDays.has(pDay) && !isFuture(prevYear, prevMonth, pDay);
+        if (pHasNotes) {
+          html += `<td class="cal-day other-month has-notes" data-prev-day="${pDay}">${pDay}</td>`;
+        } else {
+          html += `<td class="cal-day other-month">${pDay}</td>`;
+        }
       } else if (dayNum > totalDays) {
         // Next month leading days
-        html += `<td class="cal-day other-month">${nextMonthDay++}</td>`;
+        const nDay = nextMonthDay++;
+        const nHasNotes = nextMonthHighlightedDays.has(nDay) && !isFuture(nextYear, nextMonth, nDay);
+        if (nHasNotes) {
+          html += `<td class="cal-day other-month has-notes" data-next-day="${nDay}">${nDay}</td>`;
+        } else {
+          html += `<td class="cal-day other-month">${nDay}</td>`;
+        }
       } else {
         const d = dayNum;
         const classes = ["cal-day"];
@@ -136,6 +175,18 @@ export function render() {
       selectedDay = day;
       render();
       onDayClick(viewYear, viewMonth, day);
+    });
+  });
+
+  container.querySelectorAll("td[data-prev-day]").forEach((td) => {
+    td.addEventListener("click", () => {
+      navigateToMonth(prevYear, prevMonth, parseInt(td.dataset.prevDay));
+    });
+  });
+
+  container.querySelectorAll("td[data-next-day]").forEach((td) => {
+    td.addEventListener("click", () => {
+      navigateToMonth(nextYear, nextMonth, parseInt(td.dataset.nextDay));
     });
   });
 }
