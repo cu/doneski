@@ -30,7 +30,7 @@ html, body {
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 4px 16px 4px 16px;
   overflow-y: auto;
 }
 
