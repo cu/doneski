@@ -72,6 +72,10 @@ def test_create_note_reserved_title(service):
         service.create_note(d, "done")
     with pytest.raises(NoteError):
         service.create_note(d, "TODO")
+    with pytest.raises(NoteError):
+        service.create_note(d, ".")
+    with pytest.raises(NoteError):
+        service.create_note(d, "..")
 
 
 def test_create_note_duplicate_title(service):

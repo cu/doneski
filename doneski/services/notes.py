@@ -5,7 +5,7 @@ from datetime import date
 
 from doneski.storage.file_store import FileStore
 
-SPECIAL_TITLES = {"todo", "done"}
+SPECIAL_TITLES = {"todo", "done", ".", ".."}  # '.' and '..' are reserved because they get path-normalized in URLs
 MAX_TITLE_LENGTH = 80
 
 
