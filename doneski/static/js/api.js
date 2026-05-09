@@ -13,7 +13,12 @@ async function request(method, path, body = null) {
   }
   const resp = await fetch(path, opts);
   if (!resp.ok) {
-    throw new Error(`Request failed: ${resp.status}`);
+    let message = `Request failed: ${resp.status}`;
+    try {
+      const errData = await resp.json();
+      if (errData && errData.error) message = errData.error;
+    } catch (_) { /* fall back to generic message */ }
+    throw new Error(message);
   }
   const data = await resp.json();
   return data;
