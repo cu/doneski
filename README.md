@@ -4,6 +4,9 @@ Doneski is a personal daily task and notes management web application designed f
 
 See `docs/architecture.md` for detailed information on how the app was designed and built.
 
+![Light Mode Screenshot](light.png)
+![Dark Mode Screenshot](dark.png)
+
 # Running
 
 Requires [uv](https://github.com/astral-sh/uv) and Python 3.13+.
