@@ -6,6 +6,8 @@ import { formatDate, relativeLabel, isToday as isTodayUtil, SPECIAL_TITLES } fro
 import { getState } from "./state.js";
 import { showDialog } from "./modal.js";
 
+const THEME_STORAGE_KEY = "doneski-theme";
+
 let onNoteSelect;
 let onNewDay;
 let onDeleteDay;
@@ -30,6 +32,14 @@ export function init(callbacks) {
     closeMenu();
     handleDeleteDay();
   });
+  document.getElementById("btn-theme-toggle").addEventListener("click", () => {
+    closeMenu();
+    toggleTheme();
+  });
+
+  // Sync toggle label with whatever theme is currently active (may have been
+  // set by the anti-flash inline script in <head> before this module loaded).
+  updateThemeToggleLabel();
 
   // Close menu when clicking outside
   document.addEventListener("click", (e) => {
@@ -38,6 +48,29 @@ export function init(callbacks) {
       closeMenu();
     }
   });
+}
+
+/** Return the currently effective theme ("dark" or "light"). */
+function getEffectiveTheme() {
+  const explicit = document.documentElement.getAttribute("data-theme");
+  if (explicit) return explicit;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+/** Toggle between light and dark, persisting the choice to localStorage. */
+function toggleTheme() {
+  const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem(THEME_STORAGE_KEY, next);
+  updateThemeToggleLabel();
+}
+
+/** Update the toggle button label to reflect the action it will take. */
+function updateThemeToggleLabel() {
+  const btn = document.getElementById("btn-theme-toggle");
+  if (btn) {
+    btn.textContent = getEffectiveTheme() === "dark" ? "Light Mode" : "Dark Mode";
+  }
 }
 
 function toggleMenu() {

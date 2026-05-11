@@ -6,6 +6,13 @@
   <title>Doneski</title>
   <link rel="icon" type="image/svg+xml" href="/static/img/icon.svg">
   <link rel="stylesheet" href="/static/css/style.css">
+  <script>
+    // Apply saved theme before first paint to avoid flash of wrong theme.
+    (function () {
+      var t = localStorage.getItem("doneski-theme");
+      if (t) document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
@@ -16,6 +23,7 @@
           <div id="sidebar-menu" class="sidebar-menu-dropdown" style="display: none;">
             <button id="btn-weekly-report" class="sidebar-menu-item">Weekly Report</button>
             <button id="btn-delete-day" class="sidebar-menu-item danger">Delete Day</button>
+            <button id="btn-theme-toggle" class="sidebar-menu-item">Dark Mode</button>
           </div>
         </div>
         <span id="app-name">Doneski</span>

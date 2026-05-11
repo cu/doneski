@@ -1,3 +1,136 @@
+/* === Color variables === */
+
+:root {
+  /* Backgrounds */
+  --color-bg: #f5f5f5;
+  --color-surface: #fafafa;
+  --color-surface-elevated: #fff;
+
+  /* Borders */
+  --color-border: #ddd;
+  --color-border-light: #ccc;
+  --color-border-medium: #aaa;
+
+  /* Text */
+  --color-text-primary: #333;
+  --color-text-secondary: #555;
+  --color-text-muted: #666;
+  --color-text-faint: #888;
+  --color-text-placeholder: #999;
+  --color-text-disabled: #ccc;
+
+  /* Interactive hover states */
+  --color-hover: #f0f0f0;
+  --color-hover-strong: #e8e8e8;
+
+  /* Accent (blue) */
+  --color-accent: #4a90d9;
+  --color-accent-hover: #3a80c9;
+  --color-accent-light: #e3f0fc;
+  --color-accent-text: #fff;
+  --color-accent-glow: rgba(74, 144, 217, 0.2);
+
+  /* Danger (red) */
+  --color-danger: #d32f2f;
+  --color-danger-dark: #b71c1c;
+  --color-danger-bg: #ffebee;
+  --color-danger-border: #ffcdd2;
+  --color-danger-error: #c62828;
+  --color-danger-btn: #d9534f;
+  --color-danger-btn-hover: #c9302c;
+
+  /* Warning (orange) */
+  --color-warning-bg: #fff3e0;
+  --color-warning-text: #e65100;
+  --color-warning-border: #ffcc80;
+
+  /* Shadows and overlays */
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-strong: rgba(0, 0, 0, 0.2);
+  --color-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode via OS/browser preference (only when no explicit theme is set to light) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #1a1a1a;
+    --color-surface: #242424;
+    --color-surface-elevated: #2e2e2e;
+    --color-border: #3a3a3a;
+    --color-border-light: #444;
+    --color-border-medium: #666;
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: #bbb;
+    --color-text-muted: #999;
+    --color-text-faint: #777;
+    --color-text-placeholder: #666;
+    --color-text-disabled: #555;
+    --color-hover: #333;
+    --color-hover-strong: #383838;
+    --color-accent: #3b6686;
+    --color-accent-hover: #4a8fc4;
+    --color-accent-light: #1a2f44;
+    --color-accent-text: #fff;
+    --color-accent-glow: rgba(90, 159, 212, 0.25);
+    --color-danger: #e57373;
+    --color-danger-dark: #ef9a9a;
+    --color-danger-bg: #2d1515;
+    --color-danger-border: #5a2020;
+    --color-danger-error: #ef9a9a;
+    --color-danger-btn: #c0392b;
+    --color-danger-btn-hover: #a93226;
+    --color-warning-bg: #2d1f00;
+    --color-warning-text: #ffb74d;
+    --color-warning-border: #5a3e00;
+    --color-shadow: rgba(0, 0, 0, 0.4);
+    --color-shadow-strong: rgba(0, 0, 0, 0.6);
+    --color-overlay: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Dark mode via explicit user toggle */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #1a1a1a;
+  --color-surface: #242424;
+  --color-surface-elevated: #2e2e2e;
+  --color-border: #3a3a3a;
+  --color-border-light: #444;
+  --color-border-medium: #666;
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #bbb;
+  --color-text-muted: #999;
+  --color-text-faint: #777;
+  --color-text-placeholder: #666;
+  --color-text-disabled: #555;
+  --color-hover: #333;
+  --color-hover-strong: #383838;
+  --color-accent: #3b6686;
+  --color-accent-hover: #4a8fc4;
+  --color-accent-light: #1a2f44;
+  --color-accent-text: #fff;
+  --color-accent-glow: rgba(90, 159, 212, 0.25);
+  --color-danger: #e57373;
+  --color-danger-dark: #ef9a9a;
+  --color-danger-bg: #2d1515;
+  --color-danger-border: #5a2020;
+  --color-danger-error: #ef9a9a;
+  --color-danger-btn: #c0392b;
+  --color-danger-btn-hover: #a93226;
+  --color-warning-bg: #2d1f00;
+  --color-warning-text: #ffb74d;
+  --color-warning-border: #5a3e00;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+  --color-shadow-strong: rgba(0, 0, 0, 0.6);
+  --color-overlay: rgba(0, 0, 0, 0.7);
+}
+
+/* Light mode via explicit user toggle (overrides OS dark preference) */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 /* === Reset and base === */
 
 *, *::before, *::after {
@@ -10,8 +143,8 @@ html, body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
-  color: #333;
-  background: #f5f5f5;
+  color: var(--color-text-primary);
+  background: var(--color-bg);
 }
 
 /* === App layout === */
@@ -26,8 +159,8 @@ html, body {
 #sidebar {
   width: 260px;
   min-width: 260px;
-  background: #fafafa;
-  border-right: 1px solid #ddd;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   padding: 4px 16px 4px 16px;
@@ -54,7 +187,7 @@ html, body {
 
 .cal-nav {
   background: none;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
@@ -63,11 +196,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .cal-nav:hover {
-  background: #eee;
+  background: var(--color-hover);
 }
 
 .calendar-grid {
@@ -79,7 +212,7 @@ html, body {
 .calendar-grid th {
   font-size: 11px;
   font-weight: 600;
-  color: #888;
+  color: var(--color-text-faint);
   padding: 4px 0;
   text-align: center;
 }
@@ -92,47 +225,47 @@ html, body {
 }
 
 .cal-day:hover:not(.future):not(.other-month) {
-  background: #e8e8e8;
+  background: var(--color-hover-strong);
 }
 
 .cal-day.other-month {
-  color: #ccc;
+  color: var(--color-text-disabled);
   cursor: default;
 }
 
 .cal-day.other-month.has-notes {
-  color: #888;
+  color: var(--color-text-faint);
   cursor: pointer;
 }
 
 .cal-day.other-month.has-notes:hover {
-  background: #e8e8e8;
+  background: var(--color-hover-strong);
 }
 
 .cal-day.future {
-  color: #ccc;
+  color: var(--color-text-disabled);
   cursor: default;
 }
 
 .cal-day.today {
   font-weight: 700;
-  border: 2px solid #4a90d9;
+  border: 2px solid var(--color-accent);
 }
 
 .cal-day.has-notes {
-  background: #e3f0fc;
+  background: var(--color-accent-light);
   font-weight: 600;
 }
 
 .cal-day.selected {
-  background: #4a90d9;
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
   font-weight: 700;
 }
 
 .cal-day.selected.has-notes {
-  background: #4a90d9;
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 /* === Day info === */
@@ -144,19 +277,19 @@ html, body {
 #day-date {
   font-weight: 600;
   font-size: 13px;
-  color: #333;
+  color: var(--color-text-primary);
   text-align: center;
 }
 
 #day-relative {
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-muted);
   margin-top: 2px;
   text-align: center;
 }
 
 #day-relative.past-label {
-  color: #d32f2f;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
@@ -183,12 +316,12 @@ html, body {
 }
 
 .note-item:hover {
-  background: #f0f0f0;
+  background: var(--color-hover);
 }
 
 .note-item.active {
-  background: #4a90d9;
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 
@@ -201,36 +334,37 @@ html, body {
 .sidebar-btn {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
-  background: #fff;
+  background: var(--color-surface-elevated);
   cursor: pointer;
   font-size: 13px;
   text-align: center;
+  color: var(--color-text-primary);
 }
 
 .sidebar-btn:hover {
-  background: #f0f0f0;
+  background: var(--color-hover);
 }
 
 /* Add Note button: sits at bottom of notes list, styled like a list item but as a button */
 .add-note-btn {
   width: 100%;
   padding: 8px 10px;
-  border: 1px dashed #ccc;
+  border: 1px dashed var(--color-border-light);
   border-radius: 4px;
-  background: #fff;
+  background: var(--color-surface-elevated);
   cursor: pointer;
   font-size: 13px;
   text-align: left;
-  color: #888;
+  color: var(--color-text-faint);
   margin-top: 4px;
 }
 
 .add-note-btn:hover {
-  background: #f0f0f0;
-  border-color: #aaa;
-  color: #333;
+  background: var(--color-hover);
+  border-color: var(--color-border-medium);
+  color: var(--color-text-primary);
 }
 
 /* === Sidebar header === */
@@ -245,7 +379,7 @@ html, body {
 #app-name {
   font-weight: 700;
   font-size: 18px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 #sidebar-menu-container {
@@ -257,25 +391,25 @@ html, body {
   background: none;
   border: none;
   cursor: pointer;
-  color: #888;
+  color: var(--color-text-faint);
   font-size: 26px;
   border-radius: 4px;
   line-height: 1;
 }
 
 .sidebar-menu-toggle:hover {
-  background: #f0f0f0;
-  color: #555;
+  background: var(--color-hover);
+  color: var(--color-text-secondary);
 }
 
 .sidebar-menu-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--color-shadow);
   overflow: hidden;
   margin-top: 4px;
   min-width: 160px;
@@ -291,18 +425,19 @@ html, body {
   font-size: 13px;
   text-align: left;
   display: block;
+  color: var(--color-text-primary);
 }
 
 .sidebar-menu-item:hover {
-  background: #f0f0f0;
+  background: var(--color-hover);
 }
 
 .sidebar-menu-item.danger {
-  color: #d32f2f;
+  color: var(--color-danger);
 }
 
 .sidebar-menu-item.danger:hover {
-  background: #ffebee;
+  background: var(--color-danger-bg);
 }
 
 /* === Editor pane === */
@@ -321,8 +456,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
   min-height: 48px;
 }
 
@@ -353,11 +488,13 @@ html, body {
 #note-title-input {
   font-size: 16px;
   font-weight: 600;
-  border: 1px solid #4a90d9;
+  border: 1px solid var(--color-accent);
   border-radius: 4px;
   padding: 2px 6px;
   width: 100%;
   outline: none;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
 }
 
 /* === Note controls === */
@@ -372,7 +509,7 @@ html, body {
   background: none;
   border: none;
   cursor: pointer;
-  color: #888;
+  color: var(--color-text-faint);
   padding: 4px;
   border-radius: 4px;
   display: flex;
@@ -381,40 +518,40 @@ html, body {
 }
 
 .icon-btn:hover {
-  background: #eee;
-  color: #555;
+  background: var(--color-hover-strong);
+  color: var(--color-text-secondary);
 }
 
 .icon-btn:disabled,
 .icon-btn.disabled {
-  color: #ccc;
+  color: var(--color-text-disabled);
   cursor: default;
 }
 
 .icon-btn:disabled:hover,
 .icon-btn.disabled:hover {
   background: none;
-  color: #ccc;
+  color: var(--color-text-disabled);
 }
 
 .icon-btn.dirty {
-  color: #d32f2f;
+  color: var(--color-danger);
 }
 
 .icon-btn.dirty:hover {
-  color: #b71c1c;
-  background: #ffebee;
+  color: var(--color-danger-dark);
+  background: var(--color-danger-bg);
 }
 
 /* === Past day banner === */
 
 #past-day-banner {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
-  border-bottom: 1px solid #ffcc80;
+  border-bottom: 1px solid var(--color-warning-border);
 }
 
 /* === Editor body / textarea === */
@@ -436,13 +573,13 @@ html, body {
   font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Liberation Mono", monospace;
   font-size: 14px;
   line-height: 1.6;
-  background: #fff;
-  color: #333;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
 }
 
 .note-textarea.readonly {
-  background: #fafafa;
-  color: #666;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
 }
 
 /* === Generic Dialog === */
@@ -453,7 +590,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,13 +598,13 @@ html, body {
 }
 
 #generic-dialog {
-  background: #fff;
+  background: var(--color-surface-elevated);
   border-radius: 8px;
   width: 480px;
   max-width: 90vw;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 24px var(--color-shadow-strong);
 }
 
 .dlg-header {
@@ -475,7 +612,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .dlg-title {
@@ -495,16 +632,16 @@ html, body {
 .dlg-error {
   margin: 0 16px 12px;
   padding: 8px 12px;
-  background: #ffebee;
-  border: 1px solid #ffcdd2;
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
   border-radius: 4px;
-  color: #c62828;
+  color: var(--color-danger-error);
   font-size: 13px;
 }
 
 .dlg-footer {
   padding: 12px 16px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -512,15 +649,16 @@ html, body {
 
 .dlg-btn {
   padding: 7px 16px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
-  background: #fff;
+  background: var(--color-surface-elevated);
   cursor: pointer;
   font-size: 13px;
+  color: var(--color-text-primary);
 }
 
 .dlg-btn:hover:not(:disabled) {
-  background: #f0f0f0;
+  background: var(--color-hover);
 }
 
 .dlg-btn:disabled {
@@ -529,25 +667,25 @@ html, body {
 }
 
 .dlg-btn-primary {
-  background: #4a90d9;
-  color: #fff;
-  border-color: #4a90d9;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
 }
 
 .dlg-btn-primary:hover:not(:disabled) {
-  background: #3a80c9;
-  border-color: #3a80c9;
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 .dlg-btn-danger {
-  background: #d9534f;
-  color: #fff;
-  border-color: #d9534f;
+  background: var(--color-danger-btn);
+  color: var(--color-accent-text);
+  border-color: var(--color-danger-btn);
 }
 
 .dlg-btn-danger:hover:not(:disabled) {
-  background: #c9302c;
-  border-color: #c9302c;
+  background: var(--color-danger-btn-hover);
+  border-color: var(--color-danger-btn-hover);
 }
 
 /* Input fields inside dialog body */
@@ -561,31 +699,33 @@ html, body {
 .dlg-label {
   font-size: 13px;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .dlg-input {
   padding: 7px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
   font-size: 14px;
   width: 100%;
   outline: none;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
 }
 
 .dlg-input:focus {
-  border-color: #4a90d9;
-  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-glow);
 }
 
 .dlg-char-count {
   font-size: 11px;
-  color: #999;
+  color: var(--color-text-placeholder);
   text-align: right;
 }
 
 .dlg-char-count.near-limit {
-  color: #e65100;
+  color: var(--color-warning-text);
   font-weight: 600;
 }
 
@@ -597,7 +737,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -605,14 +745,14 @@ html, body {
 }
 
 #modal {
-  background: #fff;
+  background: var(--color-surface-elevated);
   border-radius: 8px;
   width: 600px;
   max-width: 90vw;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 24px var(--color-shadow-strong);
 }
 
 #modal-header {
@@ -620,7 +760,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 
 #modal-header h2 {
@@ -646,6 +786,6 @@ html, body {
 
 #modal-footer {
   padding: 12px 16px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border);
   text-align: right;
 }
