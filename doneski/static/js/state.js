@@ -58,9 +58,10 @@ export function setNotes(notes) {
   state.notes = notes;
   state.dirty = {};
   state.locked = {};
-  // Auto-select the first note if there are any
+  // Auto-select the Done note by default; fall back to the first note
   if (notes && notes.length > 0) {
-    state.selectedNote = notes[0].title;
+    const doneNote = notes.find(n => n.title === "Done");
+    state.selectedNote = doneNote ? doneNote.title : notes[0].title;
   } else {
     state.selectedNote = null;
   }
@@ -126,7 +127,8 @@ export function removeNoteFromState(title) {
   delete state.dirty[title];
   delete state.locked[title];
   if (state.selectedNote === title) {
-    state.selectedNote = state.notes.length > 0 ? state.notes[0].title : null;
+    const doneNote = state.notes.find(n => n.title === "Done");
+    state.selectedNote = doneNote ? doneNote.title : (state.notes.length > 0 ? state.notes[0].title : null);
   }
   notify(["notes"]);
 }

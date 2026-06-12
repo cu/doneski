@@ -40,6 +40,9 @@ async function selectDay(year, month, day) {
   // Save current note if dirty before switching days
   await editor.saveCurrentIfDirty();
 
+  // Remember the selected note so we can restore it if it exists on the new day
+  const prevNote = getState().selectedNote;
+
   setSelectedDate(year, month, day);
   sidebar.render();
   editor.render();
@@ -47,6 +50,10 @@ async function selectDay(year, month, day) {
   try {
     const notes = await api.getDay(year, month, day);
     setNotes(notes);
+    // Restore the previously selected note if it exists in the new day
+    if (prevNote && notes.some(n => n.title === prevNote)) {
+      setSelectedNote(prevNote);
+    }
     editor.buildTextareas(notes);
   } catch {
     // 404 = day has no notes, which is fine
