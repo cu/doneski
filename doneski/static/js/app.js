@@ -14,6 +14,8 @@ import {
   setCalendarMonth,
   setLocked,
   getState,
+  getNetworkError,
+  setNetworkError,
   removeNoteFromState,
   updateNoteInState,
 } from "./state.js";
@@ -66,6 +68,7 @@ async function selectDay(year, month, day) {
 }
 
 async function handleDayClick(year, month, day) {
+  if (getNetworkError()) return;
   await selectDay(year, month, day);
 }
 
@@ -83,6 +86,7 @@ async function handleNoteSelect(title) {
 }
 
 async function handleNewDay() {
+  if (getNetworkError()) return;
   const state = getState();
   const { selectedYear, selectedMonth, selectedDay } = state;
   try {
@@ -101,6 +105,7 @@ async function handleNewDay() {
 }
 
 async function handleDeleteDay() {
+  if (getNetworkError()) return;
   const state = getState();
   const { selectedYear, selectedMonth, selectedDay } = state;
   // Errors intentionally not caught here; the modal displays them.
@@ -113,6 +118,7 @@ async function handleDeleteDay() {
 }
 
 async function handleAddNote(title) {
+  if (getNetworkError()) return;
   const state = getState();
   const { selectedYear, selectedMonth, selectedDay } = state;
   // Errors are intentionally not caught here; the caller (modal) handles them.
@@ -149,6 +155,7 @@ async function handleTitleChange(oldTitle, newTitle) {
 }
 
 async function handleDeleteNote(title) {
+  if (getNetworkError()) return;
   const state = getState();
   await api.deleteNote(
     state.selectedYear,
@@ -210,6 +217,20 @@ function initModal() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Wire up network error detection
+  api.setNetworkCallbacks({
+    onNetworkError: () => {
+      setNetworkError(true);
+      editor.showNetworkBanner();
+    },
+    onNetworkSuccess: () => {
+      if (getNetworkError()) {
+        setNetworkError(false);
+        editor.hideNetworkBanner();
+      }
+    },
+  });
+
   // Init modules
   calendar.init(document.getElementById("calendar-container"), handleDayClick);
   sidebar.init({
@@ -229,6 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Listen for month navigation
   document.getElementById("calendar-container").addEventListener("monthchange", async (e) => {
+    if (getNetworkError()) return;
     await loadMonth(e.detail.year, e.detail.month);
     if (e.detail.day != null) {
       calendar.setSelected(e.detail.day);

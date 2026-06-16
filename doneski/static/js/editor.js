@@ -10,6 +10,7 @@ import {
   setLocked,
   isNoteLocked,
   isNoteDirty,
+  getNetworkError,
   updateNoteInState,
 } from "./state.js";
 import { isToday, SPECIAL_TITLES } from "./utils.js";
@@ -26,7 +27,9 @@ let btnLock;
 let btnDelete;
 let iconLocked;
 let iconUnlocked;
-let pastDayBanner;
+let editorBanners;
+let bannerPastDay;
+let bannerNetworkError;
 
 // Map of note title -> textarea element
 let textareas = {};
@@ -51,7 +54,9 @@ export function init(callbacks) {
   btnDelete = document.getElementById("btn-delete");
   iconLocked = document.getElementById("icon-locked");
   iconUnlocked = document.getElementById("icon-unlocked");
-  pastDayBanner = document.getElementById("past-day-banner");
+  editorBanners = document.getElementById("editor-banners");
+  bannerPastDay = document.getElementById("banner-past-day");
+  bannerNetworkError = document.getElementById("banner-network-error");
 
   btnSave.addEventListener("click", handleSaveClick);
   btnLock.addEventListener("click", handleLockClick);
@@ -97,10 +102,11 @@ export function render() {
   const state = getState();
   const { selectedNote, notes, selectedYear, selectedMonth, selectedDay } = state;
 
-  // Hide header and banner if nothing selected
+  // Hide header and banners if nothing selected
   if (!selectedNote || !notes) {
     noteHeader.style.display = "none";
-    pastDayBanner.style.display = "none";
+    bannerPastDay.style.display = "none";
+    updateBannersVisibility();
     // Hide all textareas
     for (const ta of Object.values(textareas)) {
       ta.style.display = "none";
@@ -141,7 +147,8 @@ export function render() {
   }
 
   // Past day banner
-  pastDayBanner.style.display = !isCurrentDay && !locked ? "" : "none";
+  bannerPastDay.style.display = !isCurrentDay && !locked ? "" : "none";
+  updateBannersVisibility();
 
   // Delete button: hidden for special notes
   btnDelete.style.display = isSpecial ? "none" : "";
@@ -304,6 +311,25 @@ async function commitTitleEdit() {
 function cancelTitleEdit() {
   noteTitleInput.style.display = "none";
   noteTitle.style.display = "";
+}
+
+/**
+ * Show or hide the banners container based on whether any child is visible.
+ */
+function updateBannersVisibility() {
+  const anyVisible = Array.from(editorBanners.querySelectorAll("li"))
+    .some(li => li.style.display !== "none");
+  editorBanners.style.display = anyVisible ? "" : "none";
+}
+
+export function showNetworkBanner() {
+  bannerNetworkError.style.display = "";
+  updateBannersVisibility();
+}
+
+export function hideNetworkBanner() {
+  bannerNetworkError.style.display = "none";
+  updateBannersVisibility();
 }
 
 /**

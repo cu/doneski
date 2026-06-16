@@ -543,15 +543,30 @@ html, body {
   background: var(--color-danger-bg);
 }
 
-/* === Past day banner === */
+/* === Editor banners === */
 
-#past-day-banner {
-  background: var(--color-warning-bg);
-  color: var(--color-warning-text);
+#editor-banners ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#editor-banners li {
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
+}
+
+#banner-past-day {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
   border-bottom: 1px solid var(--color-warning-border);
+}
+
+#banner-network-error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-bottom: 1px solid var(--color-danger-border);
 }
 
 /* === Editor body / textarea === */

@@ -27,6 +27,9 @@ const state = {
   // Per-note lock state for past days: { [title]: boolean }
   // true = locked (read-only), false = unlocked
   locked: {},
+
+  // Network error state: true when the server is unreachable
+  networkError: false,
 };
 
 export function getState() {
@@ -97,6 +100,15 @@ export function isNoteLocked(title) {
 
 export function isNoteDirty(title) {
   return !!state.dirty[title];
+}
+
+export function setNetworkError(isError) {
+  state.networkError = isError;
+  notify(["networkError"]);
+}
+
+export function getNetworkError() {
+  return state.networkError;
 }
 
 export function updateNoteInState(oldTitle, newTitle, body) {

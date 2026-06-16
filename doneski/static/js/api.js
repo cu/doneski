@@ -2,6 +2,12 @@
  * Thin fetch wrapper for all backend API calls.
  */
 
+let networkCallbacks = { onNetworkError: null, onNetworkSuccess: null };
+
+export function setNetworkCallbacks(callbacks) {
+  networkCallbacks = { ...networkCallbacks, ...callbacks };
+}
+
 async function request(method, path, body = null) {
   const opts = {
     method,
@@ -11,7 +17,14 @@ async function request(method, path, body = null) {
     opts.headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(body);
   }
-  const resp = await fetch(path, opts);
+  let resp;
+  try {
+    resp = await fetch(path, opts);
+  } catch (err) {
+    if (networkCallbacks.onNetworkError) networkCallbacks.onNetworkError(err);
+    throw err;
+  }
+  if (networkCallbacks.onNetworkSuccess) networkCallbacks.onNetworkSuccess();
   if (!resp.ok) {
     let message = `Request failed: ${resp.status}`;
     try {
