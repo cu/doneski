@@ -569,7 +569,7 @@ html, body {
   border-bottom: 1px solid var(--color-danger-border);
 }
 
-/* === Editor body / textarea === */
+/* === Editor body / CodeMirror === */
 
 #editor-body {
   flex: 1;
@@ -578,13 +578,12 @@ html, body {
   overflow: hidden;
 }
 
-.note-textarea {
+/* Make CodeMirror fill the editor body */
+#editor-body .CodeMirror {
   flex: 1;
-  width: 100%;
+  height: auto;
   border: none;
-  outline: none;
-  resize: none;
-  padding: 16px;
+  padding: 12px 16px;
   font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Liberation Mono", monospace;
   font-size: 14px;
   line-height: 1.6;
@@ -592,10 +591,54 @@ html, body {
   color: var(--color-text-primary);
 }
 
-.note-textarea.readonly {
+#editor-body .CodeMirror-gutters {
+  display: none;
+}
+
+#editor-body .CodeMirror-cursor {
+  border-left-color: var(--color-text-primary);
+}
+
+#editor-body .CodeMirror-selected {
+  background: var(--color-accent-light);
+}
+
+#editor-body .CodeMirror-focused .CodeMirror-selected {
+  background: var(--color-accent-light);
+}
+
+/* Readonly (locked) state */
+#editor-body .CodeMirror.readonly {
   background: var(--color-surface);
   color: var(--color-text-muted);
 }
+
+/* === Markdown syntax highlighting === */
+/* These override CodeMirror's sensible defaults */
+
+/* Headers: colored but same size */
+#editor-body .cm-header {
+  font-size: inherit;
+  font-weight: bold;
+  color: var(--color-accent);
+}
+
+/* Links */
+#editor-body .cm-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+#editor-body .cm-url {
+  color: var(--color-text-muted);
+}
+
+/* Blockquote */
+#editor-body .cm-quote {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 
 /* === Generic Dialog === */
 

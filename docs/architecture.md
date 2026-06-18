@@ -6,7 +6,7 @@ Doneski is a personal daily task/notes management web application. The core work
 
 * Language: Python
 * Framework: Flask
-* Frontend: Vanilla JS
+* Frontend: Vanilla JS + CodeMirror 5 (vendored, for Markdown editing)
 * Storage: JSON files
 * Project management: uv
 
@@ -28,6 +28,8 @@ Doneski is a personal daily task/notes management web application. The core work
 │  ├─ storage/
 │  │  └─ file_store.py         # JSON file read/write, directory scanning
 │  ├─ static/
+│  │  ├─ vendor/
+│  │  │  └─ codemirror/        # CodeMirror 5 (vendored, v5.65.18)
 │  │  ├─ css/
 │  │  │  └─ style.css          # All application styles
 │  │  └─ js/
@@ -35,7 +37,7 @@ Doneski is a personal daily task/notes management web application. The core work
 │  │     ├─ api.js             # Fetch wrapper for all backend calls
 │  │     ├─ calendar.js        # Calendar widget rendering and interaction
 │  │     ├─ sidebar.js         # Sidebar: note list, buttons, day metadata
-│  │     ├─ editor.js          # Right pane: note header, controls, textarea
+│  │     ├─ editor.js          # Right pane: note header, controls, CodeMirror editor
 │  │     ├─ state.js           # Client‑side application state management
 │  │     └─ utils.js           # Date formatting, helpers
 │  └─ templates/
@@ -154,9 +156,10 @@ All endpoints are prefixed with `/api/`.
 **`editor.js`** - Right pane
 - Note header: editable title (click-to-edit), truncated with ellipsis and hover tooltip
 - Note controls: Save (floppy disk), Lock/Unlock (padlock), Delete (trash can)
-- Note body: textarea with monospaced font
+- Note body: single CodeMirror 5 instance with GFM (GitHub-Flavored Markdown) syntax highlighting
+- Uses `swapDoc()` to switch between notes — each note has its own `CodeMirror.Doc` preserving undo/redo
 - Manages auto-save timer (10 second idle after last edit)
-- Saves on blur (focus leaves textarea)
+- Saves on blur (focus leaves editor)
 - Save icon: red when dirty, gray when clean
 - Lock behavior:
   - Current day: always unlocked, padlock icon grayed out / non-interactive
@@ -183,13 +186,11 @@ All endpoints are prefixed with `/api/`.
 
 ## Undo/Redo Strategy
 
-The planning doc requires per-note undo buffers using the platform's native undo/redo.
+**Approach: Single CodeMirror instance with swapDoc()**
 
-**Approach: One textarea per note, show/hide**
+A single CodeMirror 5 editor instance lives in `#editor-body` for the entire page session. Each note gets its own `CodeMirror.Doc` object, stored in a `docs` map keyed by note title. When the user switches notes, `cm.swapDoc()` swaps in the target note's Doc. Each Doc preserves its own undo/redo history independently.
 
-Rather than reusing a single textarea and swapping its `.value` (which destroys the browser's native undo stack), we create a separate `<textarea>` element for each note in the current day. Only one is visible at a time; switching notes hides the current textarea and shows the target one. This preserves each note's native undo/redo history for the lifetime of the page session.
-
-When the selected day changes, all textareas are destroyed and new ones are created for the new day's notes. Undo history does not persist across day switches (this is expected and acceptable).
+When the selected day changes, all Doc objects are discarded and new ones are created. Undo history does not persist across day switches (this is expected and acceptable).
 
 ## Auto-Save Logic
 
@@ -329,9 +330,9 @@ When notes are copied during day initialization, regular notes keep their origin
 
 Todo has `created=-2` and Done has `created=-1`, so they naturally sort before all regular notes (which have positive unix timestamps). No special-case sorting logic needed — a simple ascending sort by `created` produces the correct order.
 
-### Per-note undo via hidden textareas
+### Per-note undo via CodeMirror Doc objects
 
-The approach of creating a separate `<textarea>` per note and showing/hiding them is simple and effective for preserving native undo/redo. For a personal app with ~5-10 notes per day, the DOM overhead is negligible. However, this means undo history is lost when switching to a different day (all textareas are destroyed and recreated). This is acceptable behavior.
+Each note gets its own `CodeMirror.Doc`, which holds content and undo history. A single CodeMirror editor instance swaps between Docs via `swapDoc()`. This is lightweight (Doc objects are just data, not DOM elements) and preserves per-note undo/redo. Undo history is lost when switching to a different day (all Docs are recreated). This is acceptable behavior.
 
 ### Atomic file writes prevent corruption
 

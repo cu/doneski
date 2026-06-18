@@ -1,7 +1,8 @@
 /**
- * Right pane: note header, controls, textarea, auto-save, locking.
+ * Right pane: note header, controls, CodeMirror editor, auto-save, locking.
  *
- * Uses one hidden textarea per note (show/hide) to preserve native undo/redo.
+ * Uses a single CodeMirror 5 instance with swapDoc() to switch between notes.
+ * Each note gets its own CodeMirror.Doc, which preserves undo/redo history.
  */
 
 import {
@@ -31,14 +32,43 @@ let editorBanners;
 let bannerPastDay;
 let bannerNetworkError;
 
-// Map of note title -> textarea element
-let textareas = {};
+// Single CodeMirror editor instance
+let cm = null;
+// Map of note title -> CodeMirror.Doc
+let docs = {};
 // Autosave timer per note
 let autosaveTimers = {};
+// Title of the note currently loaded in the editor (may differ from selectedNote
+// briefly during transitions)
+let activeDocTitle = null;
 
 let onSave; // (title, body) => Promise
 let onTitleChange; // (oldTitle, newTitle) => Promise
 let onDelete; // (title) => void
+
+/**
+ * Create the CodeMirror instance (once) inside the editor-body container.
+ */
+function ensureEditor() {
+  if (cm) return;
+  cm = CodeMirror(editorBody, {
+    mode: "gfm",
+    lineWrapping: true,
+    inputStyle: "contenteditable",
+    spellcheck: false,
+    extraKeys: { Enter: "newlineAndIndentContinueMarkdownList" },
+    lineNumbers: false,
+    // Start with an empty read-only doc until a note is selected
+    readOnly: true,
+  });
+
+  cm.on("changes", () => {
+    if (activeDocTitle) handleInput(activeDocTitle);
+  });
+  cm.on("blur", () => {
+    if (activeDocTitle) handleBlur(activeDocTitle);
+  });
+}
 
 export function init(callbacks) {
   onSave = callbacks.onSave;
@@ -64,57 +94,49 @@ export function init(callbacks) {
   noteTitle.addEventListener("click", handleTitleClick);
   noteTitleInput.addEventListener("keydown", handleTitleKeydown);
   noteTitleInput.addEventListener("blur", handleTitleBlur);
+
+  ensureEditor();
 }
 
 /**
- * Build textareas for all notes in the current day.
+ * Build docs for all notes in the current day.
  * Called when the day changes.
  */
 export function buildTextareas(notes) {
   // Save any pending changes from previous day
   flushAll();
-  // Clear old textareas
-  editorBody.innerHTML = "";
-  textareas = {};
+  // Clear old docs
+  docs = {};
   autosaveTimers = {};
+  activeDocTitle = null;
 
   if (!notes) return;
 
   for (const note of notes) {
-    const ta = document.createElement("textarea");
-    ta.className = "note-textarea";
-    ta.value = note.body;
-    ta.style.display = "none";
-    ta.spellcheck = false;
-
-    ta.addEventListener("input", () => handleInput(note.title));
-    ta.addEventListener("blur", () => handleBlur(note.title));
-
-    editorBody.appendChild(ta);
-    textareas[note.title] = ta;
+    docs[note.title] = CodeMirror.Doc(note.body, "gfm");
   }
 }
 
 /**
- * Show the textarea for the selected note, hide all others.
+ * Swap in the doc for the selected note, update header and controls.
  */
 export function render() {
   const state = getState();
   const { selectedNote, notes, selectedYear, selectedMonth, selectedDay } = state;
 
-  // Hide header and banners if nothing selected
+  // Hide header and editor if nothing selected
   if (!selectedNote || !notes) {
     noteHeader.style.display = "none";
     bannerPastDay.style.display = "none";
     updateBannersVisibility();
-    // Hide all textareas
-    for (const ta of Object.values(textareas)) {
-      ta.style.display = "none";
-    }
+    if (cm) cm.getWrapperElement().style.display = "none";
+    activeDocTitle = null;
     return;
   }
 
   noteHeader.style.display = "";
+  if (cm) cm.getWrapperElement().style.display = "";
+
   const isCurrentDay = isToday(selectedYear, selectedMonth, selectedDay);
   const isSpecial = SPECIAL_TITLES.has(selectedNote.toLowerCase());
   const locked = !isCurrentDay && isNoteLocked(selectedNote);
@@ -153,15 +175,13 @@ export function render() {
   // Delete button: hidden for special notes
   btnDelete.style.display = isSpecial ? "none" : "";
 
-  // Show/hide textareas
-  for (const [title, ta] of Object.entries(textareas)) {
-    if (title === selectedNote) {
-      ta.style.display = "";
-      ta.readOnly = locked;
-      ta.classList.toggle("readonly", locked);
-    } else {
-      ta.style.display = "none";
-    }
+  // Swap to the selected note's doc
+  if (cm && docs[selectedNote]) {
+    activeDocTitle = selectedNote;
+    cm.swapDoc(docs[selectedNote]);
+    cm.setOption("readOnly", locked);
+    cm.getWrapperElement().classList.toggle("readonly", locked);
+    cm.refresh();
   }
 }
 
@@ -188,10 +208,10 @@ async function saveNote(title) {
     delete autosaveTimers[title];
   }
 
-  const ta = textareas[title];
-  if (!ta) return;
+  const doc = docs[title];
+  if (!doc) return;
 
-  const body = ta.value;
+  const body = doc.getValue();
   updateNoteInState(title, undefined, body);
   try {
     await onSave(title, body);
@@ -291,10 +311,18 @@ async function commitTitleEdit() {
 
   try {
     await onTitleChange(oldTitle, newTitle);
-    // Update textarea map
-    if (textareas[oldTitle]) {
-      textareas[newTitle] = textareas[oldTitle];
-      delete textareas[oldTitle];
+    // Update docs map
+    if (docs[oldTitle]) {
+      docs[newTitle] = docs[oldTitle];
+      delete docs[oldTitle];
+    }
+    if (activeDocTitle === oldTitle) {
+      activeDocTitle = newTitle;
+    }
+    // Update autosave timer key
+    if (autosaveTimers[oldTitle]) {
+      autosaveTimers[newTitle] = autosaveTimers[oldTitle];
+      delete autosaveTimers[oldTitle];
     }
     noteTitle.textContent = newTitle;
     noteTitle.title = newTitle;
@@ -360,11 +388,10 @@ export function lockCurrent() {
 function flushAll() {
   for (const title of Object.keys(autosaveTimers)) {
     if (isNoteDirty(title)) {
-      // Fire save synchronously (best-effort; the timer is cleared)
       clearTimeout(autosaveTimers[title]);
-      const ta = textareas[title];
-      if (ta) {
-        const body = ta.value;
+      const doc = docs[title];
+      if (doc) {
+        const body = doc.getValue();
         updateNoteInState(title, undefined, body);
         onSave(title, body).catch((err) =>
           console.error("Failed to flush save:", err)
@@ -377,12 +404,12 @@ function flushAll() {
 }
 
 /**
- * Remove a textarea when a note is deleted.
+ * Remove a doc when a note is deleted.
  */
 export function removeTextarea(title) {
-  if (textareas[title]) {
-    textareas[title].remove();
-    delete textareas[title];
+  delete docs[title];
+  if (activeDocTitle === title) {
+    activeDocTitle = null;
   }
   if (autosaveTimers[title]) {
     clearTimeout(autosaveTimers[title]);
@@ -391,18 +418,8 @@ export function removeTextarea(title) {
 }
 
 /**
- * Add a textarea for a newly created note.
+ * Add a doc for a newly created note.
  */
 export function addTextarea(note) {
-  const ta = document.createElement("textarea");
-  ta.className = "note-textarea";
-  ta.value = note.body;
-  ta.style.display = "none";
-  ta.spellcheck = false;
-
-  ta.addEventListener("input", () => handleInput(note.title));
-  ta.addEventListener("blur", () => handleBlur(note.title));
-
-  editorBody.appendChild(ta);
-  textareas[note.title] = ta;
+  docs[note.title] = CodeMirror.Doc(note.body, "gfm");
 }
