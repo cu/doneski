@@ -13,6 +13,7 @@
   <script src="/static/vendor/codemirror/addon/mode/overlay.min.js"></script>
   <script src="/static/vendor/codemirror/mode/gfm/gfm.min.js"></script>
   <script src="/static/vendor/codemirror/addon/edit/continuelist.min.js"></script>
+  <script src="/static/vendor/marked/marked.min.js"></script>
   <script>
     // Apply saved theme before first paint to avoid flash of wrong theme.
     (function () {
@@ -85,6 +86,7 @@
         </ul>
       </div>
       <div id="editor-body"></div>
+      <div id="editor-rendered" style="display: none;"></div>
     </main>
   </div>
 

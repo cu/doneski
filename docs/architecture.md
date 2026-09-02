@@ -6,7 +6,7 @@ Doneski is a personal daily task/notes management web application. The core work
 
 * Language: Python
 * Framework: Flask
-* Frontend: Vanilla JS + CodeMirror 5 (vendored, for Markdown editing)
+* Frontend: Vanilla JS + CodeMirror 5 (vendored, for Markdown editing) + Marked (vendored, for rendering locked notes as HTML)
 * Storage: JSON files
 * Project management: uv
 
@@ -29,7 +29,8 @@ Doneski is a personal daily task/notes management web application. The core work
 │  │  └─ file_store.py         # JSON file read/write, directory scanning
 │  ├─ static/
 │  │  ├─ vendor/
-│  │  │  └─ codemirror/        # CodeMirror 5 (vendored, v5.65.18)
+│  │  │  ├─ codemirror/        # CodeMirror 5 (vendored, v5.65.18)
+│  │  │  └─ marked/            # Marked (vendored, v18.0.9) — Markdown -> HTML for locked notes
 │  │  ├─ css/
 │  │  │  └─ style.css          # All application styles
 │  │  └─ js/
@@ -165,6 +166,7 @@ All endpoints are prefixed with `/api/`.
   - Current day: always unlocked, padlock icon grayed out / non-interactive
   - Previous days: locked by default, click padlock to unlock, auto-locks on note switch
 - Warning banner for editing previous days' notes (visible when note is unlocked on a past day)
+- Locked notes render as HTML instead of the CodeMirror editor (see "Note Rendering" below); unlocking swaps back to the live CodeMirror editor
 
 **`modal.js`** - Implements a generic modal for user input, warnings, and confirmation.
 
@@ -261,10 +263,19 @@ When the calendar navigates to a month, the frontend calls `GET /api/days/<year>
 Lock state is purely client-side (in `state.js`). It is NOT stored in JSON.
 
 - When a past day's notes are loaded, all notes start in locked state.
-- The textarea is set to `readonly` when locked.
-- Clicking the padlock icon on a past-day note unlocks it and shows the warning banner.
-- Switching to a different note auto-locks the previously viewed note.
-- Current-day notes are always unlocked; the padlock icon is visible but grayed out / non-interactive.
+- Locked notes are rendered as HTML (see "Note Rendering" below) instead of the CodeMirror editor.
+- Clicking the padlock icon on a past-day note unlocks it, swaps in the live CodeMirror editor (still backed by the same `CodeMirror.Doc`, preserving undo/redo), and shows the warning banner.
+- Switching to a different note auto-locks the previously viewed note (it will render as HTML again next time it's viewed).
+- Current-day notes are always unlocked (always CodeMirror); the padlock icon is visible but grayed out / non-interactive.
+
+## Note Rendering (Locked Notes)
+
+Locked (past-day) notes are displayed as rendered HTML rather than an uneditable CodeMirror instance, so past notes read like a normal document instead of a read-only text editor.
+
+- `editor.js` converts the note body's Markdown to HTML via `marked.parse()` (vendored `marked` library, loaded as a global `<script>` — same pattern as CodeMirror) and injects it into `#editor-rendered` via `innerHTML`.
+- `#editor-rendered` and the CodeMirror wrapper are mutually exclusive: exactly one is visible at a time, toggled based on the note's lock state.
+- The HTML is regenerated from the note's `CodeMirror.Doc` value each time `render()` runs for a locked note, so it always reflects the latest saved edits (e.g. after unlocking, editing, and re-locking).
+- Since Doneski is a single-user local app where the note author and viewer are always the same person, the rendered HTML is not sanitized beyond what `marked` does by default.
 
 ## Weekly Report
 

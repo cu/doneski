@@ -3,6 +3,9 @@
  *
  * Uses a single CodeMirror 5 instance with swapDoc() to switch between notes.
  * Each note gets its own CodeMirror.Doc, which preserves undo/redo history.
+ *
+ * Locked notes (past days, by default) are displayed as rendered HTML instead
+ * of the CodeMirror editor. Unlocking swaps back to the live editor.
  */
 
 import {
@@ -20,6 +23,7 @@ import { showDialog } from "./modal.js";
 const AUTOSAVE_DELAY = 10000; // 10 seconds
 
 let editorBody;
+let editorRendered;
 let noteHeader;
 let noteTitle;
 let noteTitleInput;
@@ -76,6 +80,7 @@ export function init(callbacks) {
   onDelete = callbacks.onDelete;
 
   editorBody = document.getElementById("editor-body");
+  editorRendered = document.getElementById("editor-rendered");
   noteHeader = document.getElementById("note-header");
   noteTitle = document.getElementById("note-title");
   noteTitleInput = document.getElementById("note-title-input");
@@ -129,13 +134,13 @@ export function render() {
     noteHeader.style.display = "none";
     bannerPastDay.style.display = "none";
     updateBannersVisibility();
-    if (cm) cm.getWrapperElement().style.display = "none";
+    editorBody.style.display = "none";
+    editorRendered.style.display = "none";
     activeDocTitle = null;
     return;
   }
 
   noteHeader.style.display = "";
-  if (cm) cm.getWrapperElement().style.display = "";
 
   const isCurrentDay = isToday(selectedYear, selectedMonth, selectedDay);
   const isSpecial = SPECIAL_TITLES.has(selectedNote.toLowerCase());
@@ -181,7 +186,20 @@ export function render() {
     cm.swapDoc(docs[selectedNote]);
     cm.setOption("readOnly", locked);
     cm.getWrapperElement().classList.toggle("readonly", locked);
-    cm.refresh();
+  }
+
+  // Locked past-day notes render as HTML; everything else uses the live
+  // CodeMirror editor. editorBody (not just the inner CodeMirror wrapper)
+  // must be hidden so it doesn't reserve empty space alongside editorRendered.
+  if (locked) {
+    editorBody.style.display = "none";
+    const body = docs[selectedNote] ? docs[selectedNote].getValue() : "";
+    editorRendered.innerHTML = marked.parse(body);
+    editorRendered.style.display = "";
+  } else {
+    editorRendered.style.display = "none";
+    editorBody.style.display = "";
+    if (cm) cm.refresh();
   }
 }
 
