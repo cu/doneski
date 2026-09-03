@@ -12,8 +12,8 @@ def test_init_and_get_day(client):
     assert resp.status_code == 201
     notes = resp.json["notes"]
     assert len(notes) == 2
-    assert notes[0]["title"] == "Todo"
-    assert notes[1]["title"] == "Done"
+    assert notes[0]["title"] == "Done"
+    assert notes[1]["title"] == "Todo"
 
     resp = client.get("/api/day/2026/04/13")
     assert resp.status_code == 200

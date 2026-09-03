@@ -15,6 +15,19 @@ def test_write_and_read_day(store):
     assert result == notes
 
 
+def test_read_day_sorts_by_created(store):
+    """Notes are returned in ascending `created` order regardless of array order."""
+    d = date(2026, 4, 13)
+    store.write_day(d, [
+        {"title": "Later", "created": 200, "body": ""},
+        {"title": "Todo", "created": -1, "body": ""},
+        {"title": "Earlier", "created": 100, "body": ""},
+        {"title": "Done", "created": -2, "body": ""},
+    ])
+    titles = [n["title"] for n in store.read_day(d)]
+    assert titles == ["Done", "Todo", "Earlier", "Later"]
+
+
 def test_day_exists(store):
     d = date(2026, 4, 13)
     assert not store.day_exists(d)

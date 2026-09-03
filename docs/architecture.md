@@ -64,14 +64,14 @@ One file per day at `<data_dir>/<YYYY>/<MM>/<DD>.json`:
 ```json
 [
   {
-    "title": "Todo",
+    "title": "Done",
     "created": -2,
-    "body": "- Item one\n- Item two"
+    "body": ""
   },
   {
-    "title": "Done",
+    "title": "Todo",
     "created": -1,
-    "body": ""
+    "body": "- Item one\n- Item two"
   },
   {
     "title": "Sprint Planning Notes",
@@ -83,10 +83,10 @@ One file per day at `<data_dir>/<YYYY>/<MM>/<DD>.json`:
 
 **Fields:**
 - `title` (string, max 80 chars): Unique within a day. Serves as the note identifier.
-- `created` (integer, unix epoch): Timestamp of note creation. **`-2` for Todo, `-1` for Done.** This ensures they always sort to the top (Todo first, Done second) without any special-case ordering logic. Regular notes use a real unix timestamp.
+- `created` (integer, unix epoch): Timestamp of note creation. **`-2` for Done, `-1` for Todo.** These sentinels sort the special notes to the top (Done first, Todo second) without any special-case ordering logic. Regular notes use a real unix timestamp.
 - `body` (string): Plaintext content (Markdown in a future iteration).
 
-**Ordering:** Notes are stored in display order within the JSON array: Todo first, Done second, then regular notes sorted by `created` ascending. This means the file's array order IS the canonical display order.
+**Ordering:** `created` ascending is the canonical display order, applied by `sort_notes()` in `FileStore.read_day()` — every read path goes through it. The JSON array order on disk is incidental and is never relied upon for display.
 
 **Special notes:**
 - "Todo": Always present. Body carries over from the previous day during day initialization.
@@ -231,10 +231,10 @@ User switches notes
 3. Backend finds the most recent previous date that has a notes file by scanning backwards from the target date.
 4. Backend reads that previous day's notes.
 5. Backend creates a new notes file for the target date containing:
-   - "Todo" note with body copied from the previous day's Todo note
    - "Done" note with empty body (never carried over)
+   - "Todo" note with body copied from the previous day's Todo note
    - All regular notes from the previous day, with their bodies carried over and new `created` timestamps
-6. If no previous day exists at all (first-ever use), create only empty Todo and Done.
+6. If no previous day exists at all (first-ever use), create only empty Done and Todo.
 7. Frontend refreshes the calendar (to highlight the new day) and sidebar (to show the notes).
 
 **"Scanning backwards"**: To find the previous day with notes, we need an efficient strategy. Rather than scanning day-by-day (could be slow over gaps), we can:
@@ -336,10 +336,6 @@ App configuration is handled in `doneski/config.py` and is controlled by environ
 ### Carried-over notes preserve their `created` timestamp
 
 When notes are copied during day initialization, regular notes keep their original `created` value. This preserves their relative ordering in the sidebar. New notes added during the day get a current timestamp, so they naturally appear after carried-over notes.
-
-### Todo always before Done in display order
-
-Todo has `created=-2` and Done has `created=-1`, so they naturally sort before all regular notes (which have positive unix timestamps). No special-case sorting logic needed — a simple ascending sort by `created` produces the correct order.
 
 ### Per-note undo via CodeMirror Doc objects
 

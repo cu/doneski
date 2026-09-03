@@ -9,6 +9,18 @@ import tempfile
 from datetime import date, timedelta
 
 
+def sort_notes(notes: list[dict]) -> list[dict]:
+    """Sort a day's notes into display order, ascending by `created`.
+
+    Sorts in place and returns the same list. `created` is the only key; the
+    Done and Todo notes float to the top because they carry negative sentinel
+    values instead of real timestamps. Those sentinels are stored per day, so a
+    day keeps whatever special-note order it was initialized with.
+    """
+    notes.sort(key=lambda note: note["created"])
+    return notes
+
+
 class FileStore:
     def __init__(self, data_dir: str):
         self.data_dir = data_dir
@@ -27,7 +39,7 @@ class FileStore:
         if not os.path.isfile(path):
             return None
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            return sort_notes(json.load(f))
 
     def write_day(self, d: date, notes: list[dict]) -> None:
         """Atomically write notes for a day."""

@@ -8,10 +8,10 @@ from doneski.services.notes import NoteError, NotesService
 def test_init_day_first_ever(service):
     notes = service.init_day(date(2026, 4, 13))
     assert len(notes) == 2
-    assert notes[0]["title"] == "Todo"
+    assert notes[0]["title"] == "Done"
     assert notes[0]["created"] == -2
     assert notes[0]["body"] == ""
-    assert notes[1]["title"] == "Done"
+    assert notes[1]["title"] == "Todo"
     assert notes[1]["created"] == -1
 
 

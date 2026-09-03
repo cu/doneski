@@ -3,7 +3,7 @@
 import time
 from datetime import date
 
-from doneski.storage.file_store import FileStore
+from doneski.storage.file_store import FileStore, sort_notes
 
 SPECIAL_TITLES = {"todo", "done", ".", ".."}  # '.' and '..' are reserved because they get path-normalized in URLs
 MAX_TITLE_LENGTH = 80
@@ -39,8 +39,8 @@ class NotesService:
         if prev is None:
             # First-ever use: create empty special notes
             notes = [
-                {"title": "Todo", "created": -2, "body": ""},
-                {"title": "Done", "created": -1, "body": ""},
+                {"title": "Done", "created": -2, "body": ""},
+                {"title": "Todo", "created": -1, "body": ""},
             ]
         else:
             prev_notes = self.store.read_day(prev)
@@ -48,11 +48,11 @@ class NotesService:
             for note in prev_notes:
                 if note["title"].lower() == "done":
                     # Done note: carry over with empty body
-                    notes.append({"title": "Done", "created": -1, "body": ""})
+                    notes.append({"title": "Done", "created": -2, "body": ""})
                 elif note["title"].lower() == "todo":
                     # Todo note: carry over body
                     notes.append(
-                        {"title": "Todo", "created": -2, "body": note["body"]}
+                        {"title": "Todo", "created": -1, "body": note["body"]}
                     )
                 else:
                     # Regular note: carry over body, preserve created timestamp
@@ -61,6 +61,10 @@ class NotesService:
                         "created": note["created"],
                         "body": note["body"],
                     })
+
+        # The carry-over loop above follows the previous day's array order, which
+        # may be stale; sort so the returned notes match what a later read gives.
+        sort_notes(notes)
 
         self.store.write_day(d, notes)
         return notes
