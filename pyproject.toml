@@ -22,3 +22,8 @@ dev = [
 
 [project.scripts]
 doneski = "doneski.app:main"
+
+[tool.pytest.ini_options]
+# Make `doneski` importable without installing the project, so tests can run
+# against a dependencies-only environment (as the Docker build does).
+pythonpath = ["."]

@@ -16,6 +16,8 @@ Doneski is a personal daily task/notes management web application. The core work
 ├─ AGENTS.md                   # this file
 ├─ pyproject.toml              # uv project config
 ├─ README.md
+├─ Dockerfile                  # Container image (gunicorn); tests run in the build
+├─ .dockerignore               # Keeps local data/secrets out of the build context
 ├─ doneski/                    # Python package (flat layout, no src/)
 │  ├─ app.py                   # Flask application factory + main() entry point
 │  ├─ config.py                # Configuration (data dir, port, etc.)
@@ -95,7 +97,13 @@ One file per day at `<data_dir>/<YYYY>/<MM>/<DD>.json`:
 
 # REST API Endpoints
 
-All endpoints are prefixed with `/api/`.
+All endpoints are prefixed with `/api/`, except the health check below.
+
+## Health Check
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/healthz` | Returns `{"status": "ok"}` if the data directory is writable, or 503 with `{"status": "unhealthy", "error": "..."}` if it is not. Used by the container `HEALTHCHECK`. Lives in `routes/pages.py` (outside the `/api` prefix, per convention for operational endpoints). |
 
 ## Day Operations
 
@@ -331,6 +339,19 @@ App configuration is handled in `doneski/config.py` and is controlled by environ
 - `DONESKI_HOST`: IP for development server to listen on.
 - `DONESKI_PORT`: Port for development server to listen on.
 
+# Deployment (Docker + gunicorn)
+
+The `Dockerfile` builds a two-stage image: the builder installs dependencies with uv, runs the test suite (failing the build if tests fail), then prunes the dev dependency group; the final stage copies just the resulting virtualenv and the application package.
+
+Key details, several of which are easy to get wrong:
+
+- **The package is copied to `/doneski/doneski`, not `/doneski`.** Gunicorn puts its working directory on `sys.path`, and the app imports itself as `doneski.app`/`doneski.config`/etc., so the package must remain a package. Flattening its contents into the working directory breaks every intra-package import.
+- **The project itself is never installed** (`uv sync --no-install-project`); only its dependencies are. The app is imported from the copied source tree instead. `[tool.pytest.ini_options] pythonpath = ["."]` is what lets the test run in the builder succeed against a dependencies-only environment.
+- **`COPY --chown` uses numeric IDs (`5000:5000`).** Name-based `--chown` resolves against the image as it exists at that instruction, so it only works after `useradd` has run. Numeric IDs are order-independent.
+- **Data lives at `/data`** (`DONESKI_DATA=/data`), declared as a `VOLUME` and pre-created owned by uid 5000. A bind-mounted host directory must also be owned by uid 5000, or the app cannot write; `/healthz` detects exactly this and reports the container unhealthy rather than letting writes fail silently later.
+- **Configuration comes from the environment, not `.env`.** `load_dotenv()` is only called by `main()`, which gunicorn never invokes, so `.env` has no effect in a container. Use `-e`/`environment:` instead.
+- **One worker, many threads** (`--workers 1 --threads 8`). See the concurrency note below.
+
 # 11. Additional Observations and Potential Pitfalls
 
 ### Carried-over notes preserve their `created` timestamp
@@ -344,6 +365,12 @@ Each note gets its own `CodeMirror.Doc`, which holds content and undo history. A
 ### Atomic file writes prevent corruption
 
 Since auto-save can fire frequently, and the user might also click save manually, all writes go through a write-to-temp-then-rename pattern (`os.replace()`). This ensures the JSON file is never in a half-written state.
+
+### Writes are atomic, but read-modify-write cycles are not
+
+`write_day()` is atomic, but the surrounding cycle in `services/notes.py` is not: every note operation reads the whole day, mutates the list in memory, and writes it back. Two concurrent updates to the same day can interleave such that the second write clobbers the first — the file is never corrupt, but an edit can be lost.
+
+Nothing serializes these cycles (no file locking, no in-process mutex). The exposure is narrow for a single-user app, and it already existed under the development server, since Werkzeug runs with `threaded=True` by default. It gets meaningfully worse with multiple *processes*, though, which is why the container runs `--workers 1 --threads 8` rather than multiple workers: threads in one process still interleave, but at least all cycles for a given day run in a single address space, which is the prerequisite for ever fixing this properly with a lock. Do not raise the worker count without first adding real serialization to the storage layer.
 
 ### "Find previous day" scanning strategy
 

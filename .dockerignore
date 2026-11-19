@@ -1,0 +1,18 @@
+# Keep the build context small, and keep local data and secrets out of it.
+.git
+.github
+.venv
+instance
+.env
+__pycache__
+*.py[oc]
+.pytest_cache
+build/
+dist/
+wheels/
+*.egg-info
+
+# Docs and screenshots are not needed to build or run the app.
+docs
+*.png
+*.swp

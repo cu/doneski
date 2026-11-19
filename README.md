@@ -18,6 +18,30 @@ uv run doneski
 
 The app will be available at `http://127.0.0.1:5000`. Note files are stored in Flask's instance folder (`instance/` relative to the project root by default). Override the location by setting `DONESKI_DATA`. Optionally set `DONESKI_HOST`, `DONESKI_PORT`, or `DONESKI_DEBUG`.
 
+# Running in Docker
+
+The included `Dockerfile` runs the app under gunicorn.
+
+```bash
+docker build -t doneski .
+docker run -d --name doneski -p 5000:5000 -v doneski-data:/data doneski
+```
+
+Notes are stored in `/data` inside the container. The example above uses a named volume, which Docker creates with the right ownership automatically. If you would rather bind-mount a host directory, **it must be owned by uid 5000**, which is the unprivileged user the app runs as:
+
+```bash
+mkdir -p /path/to/data && sudo chown 5000:5000 /path/to/data
+docker run -d --name doneski -p 5000:5000 -v /path/to/data:/data doneski
+```
+
+Configuration comes from the environment (`docker run -e ...`); a `.env` file has no effect under gunicorn. Gunicorn options can be overridden via `GUNICORN_CMD_ARGS`, but see `docs/architecture.md` before increasing the worker count above 1.
+
+The container exposes a health check at `/healthz`, which also verifies the data directory is writable:
+
+```bash
+docker inspect --format '{{.State.Health.Status}}' doneski
+```
+
 # Development
 
 Run:

@@ -1,4 +1,7 @@
 import json
+import os
+
+import pytest
 
 
 def test_list_days_empty(client):
@@ -99,3 +102,26 @@ def test_index_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Doneski" in resp.data
+
+
+def test_healthz_ok(client):
+    resp = client.get("/healthz")
+    assert resp.status_code == 200
+    assert resp.json["status"] == "ok"
+
+
+@pytest.mark.skipif(
+    hasattr(os, "geteuid") and os.geteuid() == 0,
+    reason="root bypasses directory permission checks",
+)
+def test_healthz_unwritable_data_dir(app, client):
+    data_dir = app.config["FILE_STORE"].data_dir
+    original_mode = os.stat(data_dir).st_mode
+    os.chmod(data_dir, 0o500)
+    try:
+        resp = client.get("/healthz")
+    finally:
+        os.chmod(data_dir, original_mode)
+    assert resp.status_code == 503
+    assert resp.json["status"] == "unhealthy"
+    assert data_dir in resp.json["error"]
